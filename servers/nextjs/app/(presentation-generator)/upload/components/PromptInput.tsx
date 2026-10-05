@@ -72,7 +72,7 @@ export function PromptInput({
           <Image src="/generate/pencil.svg" alt="" width={14} height={14} />
         </span>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor="presentation-brief" className="text-sm font-normal leading-normal text-[#333333]">Presentation brief</label>
+          <label htmlFor="presentation-brief" className="text-sm font-normal leading-[17px] text-[#333333]">Presentation brief</label>
           <Textarea
             value={value}
             id="presentation-brief"
@@ -82,8 +82,8 @@ export function PromptInput({
             placeholder="Describe your topic, audience, and key points, or attach supporting documents."
             data-testid="prompt-input"
             className={cn(
-              "custom_scrollbar max-h-[400px] min-h-[57px] resize-y overflow-y-auto rounded-none border-none bg-transparent p-0 text-base font-normal leading-normal text-[#191919] shadow-none placeholder:text-[#999999] focus-visible:ring-0 focus-visible:ring-offset-0",
-              references.length === 0 && "min-h-[79px]",
+              "custom_scrollbar max-h-[400px] min-h-[57px] resize-none overflow-y-auto rounded-none border-none bg-transparent p-0 text-base font-normal leading-normal text-[#191919] shadow-none placeholder:text-[#999999] focus-visible:ring-0 focus-visible:ring-offset-0",
+              references.length === 0 && "min-h-[77px]",
             )}
           />
         </div>

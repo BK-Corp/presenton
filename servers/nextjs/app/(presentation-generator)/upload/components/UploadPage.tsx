@@ -28,6 +28,7 @@ import { ConfigurationSelects } from "./ConfigurationSelects";
 import { RootState } from "@/store/store";
 import { ImagesApi } from "../../services/api/images";
 import GenerationModeDialog from "./GenerationModeDialog";
+import GenerateUserGuide from "./GenerateUserGuide";
 import Image from "next/image";
 import { LLMConfig } from "@/types/llm_config";
 import {
@@ -607,6 +608,7 @@ const UploadPage = ({
 
   return (
     <Wrapper className="w-full pb-10">
+      <GenerateUserGuide mode={generationMode} communityEnabled={communityEnabled} />
       <OverlayLoader
         show={loadingState.isLoading}
         text={loadingState.message}
