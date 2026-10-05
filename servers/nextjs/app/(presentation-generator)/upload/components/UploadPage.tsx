@@ -618,6 +618,7 @@ const UploadPage = ({
         open={modeDialogOpen}
         onOpenChange={setModeDialogOpen}
         onSelect={handleGenerationModeChange}
+        availableMode={presentationGenerationMode}
       />
       <div className="mx-auto max-w-[742px] space-y-[14px] px-4">
         <div data-generate-guide="setup" className="flex min-h-[62px] w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
