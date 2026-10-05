@@ -46,7 +46,6 @@ export default function GenerateUserGuide({ mode, communityEnabled }: { mode: Ge
   const close = () => {
     try { localStorage.setItem(GUIDE_KEY, "seen"); } catch { /* Closing does not depend on storage. */ }
     setOpen(false);
-    setStep(0);
   };
 
   return (

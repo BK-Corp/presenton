@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Check, ChevronDown, Eye, Heart, Loader2, RefreshCw, Search } from "lucide-react";
 
@@ -26,6 +26,7 @@ export default function CommunityReferencePicker({
 }) {
   const [items, setItems] = useState<CommunityPresentation[]>([]);
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const [filters] = useState<CommunityPresentationListFilters>({});
   const [preview, setPreview] = useState<CommunityPresentation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ export default function CommunityReferencePicker({
   const load = useCallback((signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
-    CommunityPresentationApi.list(1, 4, signal, filters)
+    CommunityPresentationApi.list(1, 8, signal, filters)
       .then((response) => setItems(response.results ?? []))
       .catch((requestError) => {
         if ((requestError as Error)?.name !== "AbortError") {
@@ -58,14 +59,25 @@ export default function CommunityReferencePicker({
     return () => controller.abort();
   }, [load]);
 
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k" && !document.querySelector("[role=dialog]")) {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
+
   const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return items;
+    if (!normalizedQuery) return items.slice(0, 4);
     return items.filter((item) =>
       [item.title, item.created_by, item.prompt]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-    );
+    ).slice(0, 4);
   }, [items, query]);
 
   return (
@@ -80,7 +92,8 @@ export default function CommunityReferencePicker({
           <label className="flex h-[38px] w-full items-center gap-2.5 rounded-md border border-[#EDEEEF] bg-white px-2.5 sm:w-[298px]">
             <Search className="h-4 w-4 shrink-0 text-[#808080]" strokeWidth={1.75} />
             <span className="sr-only">Search designs</span>
-            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by title or keyword" className="min-w-0 flex-1 bg-transparent font-syne text-base font-normal text-[#191919] outline-none placeholder:text-[#808080]" />
+            <input ref={searchRef} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by title or keyword" className="min-w-0 flex-1 bg-transparent font-syne text-base font-normal text-[#191919] outline-none placeholder:text-[#808080]" />
+            <kbd className="hidden shrink-0 font-manrope text-[10px] text-[#CCCCCC] sm:block" aria-label="Command or Control K">⌘K</kbd>
           </label>
           <Link href="/community" className="inline-flex items-center gap-1.5 whitespace-nowrap font-syne text-xs text-[#7A5AF8] hover:underline">Browse All <ArrowUpRight className="h-3.5 w-3.5" /></Link>
           {selectedId !== null && <button type="button" onClick={() => onSelect(null)} className="text-xs text-[#7A5AF8] hover:underline">Clear selection</button>}

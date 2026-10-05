@@ -370,7 +370,7 @@ export function ConfigurationSelects({
     <div
       className={cn(
         "order-1 flex flex-wrap items-center",
-        compact ? "gap-3" : "gap-4 min-[1800px]:gap-5",
+        compact ? "gap-2 sm:gap-3" : "gap-4 min-[1800px]:gap-5",
       )}
     >
       {showMode ? (

@@ -32,7 +32,7 @@ export default function GenerationModeDialog({ open, onOpenChange, onSelect, ava
 
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => { setActiveMode(null); onOpenChange(nextOpen); }}>
-      <DialogContent hideDefaultClose overlayClassName="bg-black/30 backdrop-blur-none" className="max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[820px] gap-5 overflow-y-auto border-0 bg-transparent p-0 shadow-none sm:rounded-none" onOpenAutoFocus={(event) => event.preventDefault()}>
+      <DialogContent hideDefaultClose overlayClassName="bg-black/30 backdrop-blur-none" className="max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[820px] gap-5 overflow-y-auto border-0 bg-transparent p-0 shadow-none sm:rounded-none">
         <DialogTitle className="sr-only">Choose a presentation mode</DialogTitle>
         <DialogDescription className="sr-only">Compare Standard and Smart previews, then select a mode. Hover or focus a card to pause the other preview.</DialogDescription>
         <DialogClose aria-label="Close presentation modes" className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#666666] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#7A5AF8]"><X className="h-4 w-4" /></DialogClose>
