@@ -675,6 +675,7 @@ const UploadPage = ({
         <div data-generate-guide="designs" className="mt-[92px] px-4 sm:px-6 lg:px-[81px]">
           <CommunityReferencePicker
             selectedId={communityReference?.id ?? null}
+            onUsePrompt={(prompt) => handleConfigChange("prompt", prompt)}
             onSelect={(presentation) =>
               handleCommunityReferenceChange(presentation, "community_picker")
             }
