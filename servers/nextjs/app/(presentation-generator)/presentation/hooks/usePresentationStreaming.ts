@@ -10,6 +10,7 @@ import {
 } from "@/store/slices/presentationGeneration";
 import { jsonrepair } from "jsonrepair";
 import { notify } from "@/components/ui/sonner";
+import { useT } from "@/lib/i18n";
 import { MixpanelEvent, trackEvent } from "@/utils/mixpanel";
 import { sanitizeAnalyticsError } from "@/utils/analytics";
 import { getApiUrl, normalizeBackendAssetUrls } from "@/utils/api";
@@ -128,6 +129,9 @@ export const usePresentationStreaming = (
   const previousSlidesLength = useRef(0);
   const preloadPresentationData = Boolean(options.preloadPresentationData);
   const isSmartMode = options.generationMode === "smart";
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     if (!stream) {
@@ -191,7 +195,7 @@ export const usePresentationStreaming = (
       dispatch(setStreaming(false));
       setError(true);
       if (options.showToast !== false) {
-        notify.error("Presentation streaming failed", description);
+        notify.error(tRef.current("presentation.stream.failedTitle"), description);
       }
     };
 
@@ -307,7 +311,7 @@ export const usePresentationStreaming = (
           data = JSON.parse(event.data) as PresentationStreamData;
         } catch {
           if (!scheduleRetry("invalid SSE payload")) {
-            finalizeFailure("Failed to parse stream response.");
+            finalizeFailure(tRef.current("presentation.stream.parseFailed"));
           }
           return;
         }
@@ -546,7 +550,7 @@ export const usePresentationStreaming = (
                   continue;
                 }
                 shownAssetWarnings.add(detail);
-                notify.warning("Some images could not be generated", detail, {
+                notify.warning(tRef.current("presentation.stream.imagesFailedTitle"), detail, {
                   duration: 12_000,
                 });
               }
@@ -613,7 +617,7 @@ export const usePresentationStreaming = (
             } catch (error) {
               console.error("Could not finalize presentation stream:", error);
               if (!scheduleRetry("failed to parse complete payload")) {
-                finalizeFailure("Failed to load the completed presentation.");
+                finalizeFailure(tRef.current("presentation.stream.loadCompletedFailed"));
               }
             }
             accumulatedChunks = "";
@@ -649,7 +653,7 @@ export const usePresentationStreaming = (
               });
               finalizeFailure(
                 data.detail ||
-                  "Your ChatGPT session expired. Please sign in again from Settings.",
+                  tRef.current("auth.sessionExpired"),
                 { showToast: false }
               );
               break;
@@ -657,14 +661,19 @@ export const usePresentationStreaming = (
             const completedSlides = Number(data.completed_slides);
             const totalSlides = Number(data.total_slides);
             const detail =
-              data.detail || "Failed to connect to the server. Please try again.";
+              data.detail || tRef.current("presentation.stream.connectionFailed");
             const detailWithProgress =
               Number.isFinite(completedSlides) && completedSlides > 0
-                ? `${detail} ${completedSlides}${
-                    Number.isFinite(totalSlides) && totalSlides > 0
-                      ? ` of ${totalSlides}`
-                      : ""
-                  } slides were saved and will be reused.`
+                ? Number.isFinite(totalSlides) && totalSlides > 0
+                  ? tRef.current("presentation.stream.progressWithTotal", {
+                      detail,
+                      completed: completedSlides,
+                      total: totalSlides,
+                    })
+                  : tRef.current("presentation.stream.progressWithoutTotal", {
+                      detail,
+                      completed: completedSlides,
+                    })
                 : detail;
             if (data.retryable === false) {
               finalizeFailure(detailWithProgress);
@@ -682,7 +691,7 @@ export const usePresentationStreaming = (
       eventSource.onerror = (error) => {
         console.error("EventSource failed:", error);
         if (!scheduleRetry("connection lost")) {
-          finalizeFailure("Failed to connect to the server. Please try again.");
+          finalizeFailure(tRef.current("presentation.stream.connectionFailed"));
         }
       };
     };

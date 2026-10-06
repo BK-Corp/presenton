@@ -6,6 +6,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react'
 import { LanguageType } from '../type';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 
 export const LanguageSelector: React.FC<{
@@ -13,6 +14,7 @@ export const LanguageSelector: React.FC<{
     onValueChange: (value: string) => void;
 
 }> = ({ value, onValueChange }) => {
+    const t = useT();
     const [openLanguage, setOpenLanguage] = useState(false);
     return (
         <Popover open={openLanguage} onOpenChange={setOpenLanguage}>
@@ -26,7 +28,7 @@ export const LanguageSelector: React.FC<{
                     className="px-3.5 py-1 justify-between rounded-[48px] font-manrope font-semibold overflow-hidden bg-[#F7F6F9] border-[#EDEEEF] focus-visible:ring-[#5141E5] border-none"
                 >
                     <p className="text-sm font-medium truncate">
-                        {value || "Select language"}
+                        {value || t("upload.selectLanguage")}
                     </p>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -34,11 +36,11 @@ export const LanguageSelector: React.FC<{
             <PopoverContent className="w-[300px] p-0" align="end">
                 <Command>
                     <CommandInput
-                        placeholder="Search language..."
+                        placeholder={t("upload.searchLanguage")}
                         className="font-manrope"
                     />
                     <CommandList>
-                        <CommandEmpty>No language found.</CommandEmpty>
+                        <CommandEmpty>{t("upload.noLanguageFound")}</CommandEmpty>
                         <CommandGroup>
                             {Object.values(LanguageType).map((language) => (
                                 <CommandItem

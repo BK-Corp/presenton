@@ -54,38 +54,55 @@ import {
 import type { TemplateV2InfographicToolbarElement } from "@/components/slide-editor/layout/InfographicToolbarControls";
 import { defaultInfographicIcon } from "@/components/slide-editor/infographics/infographic-icons";
 import { resizedInfographicFrame } from "@/components/slide-editor/infographics/infographic-sizing";
+import { useT } from "@/lib/i18n";
 import { buildSvgUpdateUrl } from "@/lib/svg-color";
 
 type RawRecord = Record<string, unknown>;
 
-const TYPE_LABELS: Record<InfographicType, string> = {
-  progress_bar: "Progress Bar",
-  gauge: "Gauge",
-  gantt: "Gantt Chart",
-  timeline: "Timeline",
-  roadmap: "Roadmap",
-  milestone_timeline: "Milestone Timeline",
-  staircase: "Staircase",
-  supply_chain: "Supply Chain",
-  stair_step_blocks: "Step Blocks",
-  maturity_model: "Maturity Model",
-  diagonal_circles: "Diagonal Circles",
-  pillar_framework: "Pillar Framework",
-  transformation_hub: "Transformation Hub",
-  risk_matrix: "Risk Matrix",
-  chevron_process: "Chevron Process",
-  radial_cycle: "Radial Cycle",
-  conversion_funnel: "Conversion Funnel",
-  vertical_funnel: "Vertical Funnel",
-  pyramid: "Pyramid",
-  segmented_wheel: "Segmented Wheel",
-  customer_journey: "Customer Journey",
-  before_after: "Before & After",
-  impact_effort_matrix: "Impact / Effort Matrix",
-  comparison_matrix: "Comparison Matrix",
-  org_chart: "Organization Chart",
-  decision_tree: "Decision Tree",
-  mind_map: "Mind Map",
+const TYPE_LABEL_KEYS: Record<InfographicType, string> = {
+  progress_bar: "editorTools.infographic.typeProgressBar",
+  gauge: "editorTools.infographic.typeGauge",
+  gantt: "editorTools.infographic.typeGanttChart",
+  timeline: "editorTools.infographic.typeTimeline",
+  roadmap: "editorTools.infographic.typeRoadmap",
+  milestone_timeline: "editorTools.infographic.typeMilestoneTimeline",
+  staircase: "editorTools.infographic.typeStaircase",
+  supply_chain: "editorTools.infographic.typeSupplyChain",
+  stair_step_blocks: "editorTools.infographic.typeStepBlocks",
+  maturity_model: "editorTools.infographic.typeMaturityModel",
+  diagonal_circles: "editorTools.infographic.typeDiagonalCircles",
+  pillar_framework: "editorTools.infographic.typePillarFramework",
+  transformation_hub: "editorTools.infographic.typeTransformationHub",
+  risk_matrix: "editorTools.infographic.typeRiskMatrix",
+  chevron_process: "editorTools.infographic.typeChevronProcess",
+  radial_cycle: "editorTools.infographic.typeRadialCycle",
+  conversion_funnel: "editorTools.infographic.typeConversionFunnel",
+  vertical_funnel: "editorTools.infographic.typeVerticalFunnel",
+  pyramid: "editorTools.infographic.typePyramid",
+  segmented_wheel: "editorTools.infographic.typeSegmentedWheel",
+  customer_journey: "editorTools.infographic.typeCustomerJourney",
+  before_after: "editorTools.infographic.typeBeforeAfter",
+  impact_effort_matrix: "editorTools.infographic.typeImpactEffortMatrix",
+  comparison_matrix: "editorTools.infographic.typeComparisonMatrix",
+  org_chart: "editorTools.infographic.typeOrgChart",
+  decision_tree: "editorTools.infographic.typeDecisionTree",
+  mind_map: "editorTools.infographic.typeMindMap",
+};
+
+const ITEM_LABEL_KEYS: Record<string, string> = {
+  stop: "editorTools.infographic.itemStop",
+  milestone: "editorTools.infographic.itemMilestone",
+  step: "editorTools.infographic.itemStep",
+  stage: "editorTools.infographic.itemStage",
+  level: "editorTools.infographic.itemLevel",
+  pillar: "editorTools.infographic.itemPillar",
+  segment: "editorTools.infographic.itemSegment",
+  node: "editorTools.infographic.itemNode",
+  capability: "editorTools.infographic.itemCapability",
+  activity: "editorTools.infographic.itemActivity",
+  quadrant: "editorTools.infographic.itemQuadrant",
+  row: "editorTools.infographic.itemRow",
+  comparison: "editorTools.infographic.itemComparison",
 };
 
 export function InfographicDataEditorPopover({
@@ -120,6 +137,7 @@ export function InfographicDataEditorContent({
   const [draft, setDraft] = useState<TemplateV2InfographicToolbarElement>(
     () => ({ ...element }),
   );
+  const t = useT();
   const type = readInfographicType(readRecord(draft.data).type);
   const isMeter = type === "progress_bar" || type === "gauge";
   const colors = normalizeInfographicColors(draft.colors, type);
@@ -202,15 +220,20 @@ export function InfographicDataEditorContent({
                 id="infographic-editor-title"
                 className="text-[15px] font-semibold text-[#191919]"
               >
-                Edit Infographic
+                {t("editorTools.infographic.title")}
               </h2>
               <p
                 id="infographic-editor-description"
                 className="mt-1 text-[11px] text-[#8B8B94]"
               >
-                {TYPE_LABELS[type]}
+                {t(TYPE_LABEL_KEYS[type])}
                 {!isMeter && itemCount > 0
-                  ? ` · ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+                  ? ` · ${t(
+                      itemCount === 1
+                        ? "editorTools.infographic.itemCountOne"
+                        : "editorTools.infographic.itemCountMany",
+                      { count: itemCount },
+                    )}`
                   : ""}
               </p>
             </div>
@@ -220,7 +243,7 @@ export function InfographicDataEditorContent({
                 className="h-8 min-w-[76px] rounded-full bg-[linear-gradient(100deg,#FFE6A6_0%,#D8B4FE_100%)] px-5 text-[12px] font-semibold text-[#191919] transition hover:brightness-95"
                 onClick={saveChanges}
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
           </header>
@@ -228,17 +251,17 @@ export function InfographicDataEditorContent({
           <div className="flex min-h-0 flex-1 overflow-hidden">
             <aside className="min-h-0 w-[255px] shrink-0 overflow-y-auto overscroll-contain border-r border-[#ECECF1] px-4 py-4 hide-scrollbar">
               <label className="mb-2 block text-[12px] font-medium text-[#191919]">
-                Appearance
+                {t("editorTools.infographic.appearance")}
               </label>
 
               <div className="rounded-lg border border-[#ECECF1] bg-[#F8F8FA] p-3">
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div>
                     <p className="text-[12px] font-medium text-[#191919]">
-                      Color palette
+                      {t("editorTools.infographic.colorPalette")}
                     </p>
                     <p className="mt-0.5 text-[10px] text-[#8B8B94]">
-                      Applied to items in order
+                      {t("editorTools.infographic.colorPaletteHint")}
                     </p>
                   </div>
                   <Layers3 size={14} className="text-[#7C51F8]" />
@@ -255,15 +278,15 @@ export function InfographicDataEditorContent({
                   <Type size={14} className="text-[#191919]" />
                   <div>
                     <p className="text-[12px] font-medium text-[#191919]">
-                      Text color
+                      {t("editorTools.infographic.textColor")}
                     </p>
                     <p className="mt-0.5 text-[10px] text-[#8B8B94]">
-                      Labels and descriptions
+                      {t("editorTools.infographic.textColorHint")}
                     </p>
                   </div>
                 </div>
                 <DeferredColorInput
-                  aria-label="Infographic text color"
+                  aria-label={t("editorTools.infographic.textColorAria")}
                   className="h-8 w-full cursor-pointer rounded-lg border border-[#E6E6EA] bg-white p-1"
                   value={textColor}
                   onCommit={(text_color) =>
@@ -274,7 +297,7 @@ export function InfographicDataEditorContent({
 
               <div className="mt-3 flex gap-2 rounded-lg border border-[#ECECF1] bg-[#F8F8FA] p-3 text-[10px] leading-4 text-[#686873]">
                 <Palette size={14} className="mt-0.5 shrink-0 text-[#7C51F8]" />
-                <span>The slide background remains visible behind the infographic.</span>
+                <span>{t("editorTools.infographic.backgroundHint")}</span>
               </div>
             </aside>
 
@@ -282,15 +305,20 @@ export function InfographicDataEditorContent({
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-[14px] font-semibold text-[#191919]">
-                    Content
+                    {t("editorTools.infographic.content")}
                   </h3>
                   <p className="mt-1 text-[11px] text-[#8B8B94]">
-                    Edit copy, icons, order, and relationships.
+                    {t("editorTools.infographic.contentHint")}
                   </p>
                 </div>
                 {!isMeter && itemCount > 0 ? (
                   <span className="rounded-full border border-[#E6E6EA] bg-white px-3 py-1 text-[11px] font-medium text-[#686873]">
-                    {itemCount} {itemCount === 1 ? "item" : "items"}
+                    {t(
+                      itemCount === 1
+                        ? "editorTools.infographic.itemCountOne"
+                        : "editorTools.infographic.itemCountMany",
+                      { count: itemCount },
+                    )}
                   </span>
                 ) : null}
               </div>
@@ -396,7 +424,7 @@ export function InfographicDataEditorContent({
 
         <button
           type="button"
-          aria-label="Close infographic editor"
+          aria-label={t("editorTools.infographic.closeAria")}
           className="absolute -right-14 top-0 grid h-11 w-11 place-items-center rounded-full bg-white text-[#191919] shadow-sm transition hover:bg-[#F7F7FA]"
           onClick={onClose}
         >
@@ -416,6 +444,7 @@ function ColorEditor({
   meter: boolean;
   onChange: (colors: string[]) => void;
 }) {
+  const t = useT();
   const firstEditableIndex = meter ? 0 : 1;
   const editableColors = colors.slice(firstEditableIndex);
 
@@ -434,10 +463,12 @@ function ColorEditor({
               <DeferredColorInput
                 aria-label={
                   meter && index === 0
-                    ? "Track color"
+                    ? t("editorTools.infographic.trackColorAria")
                     : meter && index === 1
-                      ? "Progress color"
-                      : `Palette color ${visibleIndex + 1}`
+                      ? t("editorTools.infographic.progressColorAria")
+                      : t("editorTools.infographic.paletteColorAria", {
+                          n: visibleIndex + 1,
+                        })
                 }
                 className="h-8 w-9 shrink-0 cursor-pointer rounded-lg border border-[#E6E6EA] bg-white p-1"
                 value={color}
@@ -452,10 +483,12 @@ function ColorEditor({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[10px] font-medium text-[#191919]">
                   {meter && index === 0
-                    ? "Track"
+                    ? t("editorTools.infographic.track")
                     : meter && index === 1
-                      ? "Progress"
-                      : `Color ${visibleIndex + 1}`}
+                      ? t("editorTools.infographic.progress")
+                      : t("editorTools.infographic.colorN", {
+                          n: visibleIndex + 1,
+                        })}
                 </span>
                 <span className="mt-0.5 block font-mono text-[8px] uppercase text-[#8B8B94]">
                   #{color.replace(/^#/, "")}
@@ -463,21 +496,21 @@ function ColorEditor({
               </span>
               <div className="flex items-center opacity-60 transition group-hover:opacity-100">
                 <MiniButton
-                  label="Move color up"
+                  label={t("editorTools.infographic.moveColorUp")}
                   disabled={!canMoveUp}
                   onClick={() => onChange(moveCollectionItem(colors, index, -1))}
                 >
                   <ChevronUp size={13} />
                 </MiniButton>
                 <MiniButton
-                  label="Move color down"
+                  label={t("editorTools.infographic.moveColorDown")}
                   disabled={!canMoveDown}
                   onClick={() => onChange(moveCollectionItem(colors, index, 1))}
                 >
                   <ChevronDown size={13} />
                 </MiniButton>
                 <MiniButton
-                  label="Delete color"
+                  label={t("editorTools.infographic.deleteColor")}
                   disabled={editableColors.length <= (meter ? 2 : 1)}
                   onClick={() => onChange(removeInfographicColor(colors, index))}
                 >
@@ -494,7 +527,7 @@ function ColorEditor({
         onClick={() => onChange(appendInfographicColor(colors))}
       >
         <Plus size={13} />
-        Add palette color
+        {t("editorTools.infographic.addPaletteColor")}
       </button>
     </div>
   );
@@ -507,21 +540,25 @@ function MeterEditor({
   data: MeterInfographicData;
   onChange: (data: MeterInfographicData) => void;
 }) {
+  const t = useT();
   return (
-    <EditorSection title="Values" description="Set the displayed value and range.">
+    <EditorSection
+      title={t("editorTools.infographic.valuesTitle")}
+      description={t("editorTools.infographic.valuesDescription")}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <NumberInput
-          label="Minimum"
+          label={t("editorTools.infographic.minimum")}
           value={data.min_value}
           onChange={(min_value) => onChange({ ...data, min_value })}
         />
         <NumberInput
-          label="Maximum"
+          label={t("editorTools.infographic.maximum")}
           value={data.max_value}
           onChange={(max_value) => onChange({ ...data, max_value })}
         />
         <NumberInput
-          label="Value"
+          label={t("editorTools.infographic.value")}
           value={data.value}
           onChange={(value) => onChange({ ...data, value })}
         />
@@ -537,6 +574,7 @@ function GanttEditor({
   data: GanttInfographicData;
   onChange: (data: GanttInfographicData) => void;
 }) {
+  const t = useT();
   const setRows = (rows: GanttInfographicData["rows"]) =>
     onChange({ ...data, rows });
   const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(() =>
@@ -584,7 +622,7 @@ function GanttEditor({
     setRows([
       ...data.rows,
       {
-        label: `Row ${data.rows.length + 1}`,
+        label: t("editorTools.infographic.rowN", { n: data.rows.length + 1 }),
         items: [defaultGanttItem(data.columns.length)],
       },
     ]);
@@ -634,18 +672,24 @@ function GanttEditor({
   return (
     <div className="space-y-5">
       <EditorSection
-        title="Timeline columns"
-        description={`${data.columns.length} columns define the horizontal schedule.`}
+        title={t("editorTools.infographic.columnsTitle")}
+        description={t("editorTools.infographic.columnsDescription", {
+          count: data.columns.length,
+        })}
         action={
           <AddButton
             compact
-            label="Add column"
+            label={t("editorTools.infographic.addColumn")}
             onClick={() =>
               onChange({
                 ...data,
                 columns: [
                   ...data.columns,
-                  { label: `Column ${data.columns.length + 1}` },
+                  {
+                    label: t("editorTools.infographic.columnN", {
+                      n: data.columns.length + 1,
+                    }),
+                  },
                 ],
               })
             }
@@ -664,7 +708,7 @@ function GanttEditor({
                 </span>
                 <div className="flex items-center gap-0.5">
                   <MiniButton
-                    label="Move column left"
+                    label={t("editorTools.infographic.moveColumnLeft")}
                     disabled={index === 0}
                     onClick={() =>
                       onChange({
@@ -676,7 +720,7 @@ function GanttEditor({
                     <ChevronLeft size={13} />
                   </MiniButton>
                   <MiniButton
-                    label="Move column right"
+                    label={t("editorTools.infographic.moveColumnRight")}
                     disabled={index === data.columns.length - 1}
                     onClick={() =>
                       onChange({
@@ -688,7 +732,7 @@ function GanttEditor({
                     <ChevronRight size={13} />
                   </MiniButton>
                   <MiniButton
-                    label="Delete column"
+                    label={t("editorTools.infographic.deleteColumn")}
                     disabled={data.columns.length <= 1}
                     onClick={() => onChange(removeGanttColumn(data, index))}
                   >
@@ -697,7 +741,9 @@ function GanttEditor({
                 </div>
               </div>
               <TextInput
-                ariaLabel={`Column ${index + 1}`}
+                ariaLabel={t("editorTools.infographic.columnN", {
+                  n: index + 1,
+                })}
                 value={column.label}
                 onChange={(label) =>
                   onChange({
@@ -714,12 +760,14 @@ function GanttEditor({
       </EditorSection>
 
       <EditorSection
-        title="Rows and tasks"
-        description={`${data.rows.length} rows. Expand one row to edit its tasks and schedule.`}
+        title={t("editorTools.infographic.rowsTasksTitle")}
+        description={t("editorTools.infographic.rowsDescription", {
+          count: data.rows.length,
+        })}
         action={
           <AddButton
             compact
-            label="Add row"
+            label={t("editorTools.infographic.addRow")}
             onClick={addRow}
           />
         }
@@ -747,7 +795,12 @@ function GanttEditor({
                     type="button"
                     aria-controls={rowPanelId}
                     aria-expanded={isExpanded}
-                    aria-label={`${isExpanded ? "Collapse" : "Expand"} row ${rowIndex + 1}`}
+                    aria-label={t(
+                      isExpanded
+                        ? "editorTools.infographic.collapseRowAria"
+                        : "editorTools.infographic.expandRowAria",
+                      { n: rowIndex + 1 },
+                    )}
                     className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-[#D8CEFA]"
                     onClick={() =>
                       setExpandedRowIndex((current) =>
@@ -760,10 +813,18 @@ function GanttEditor({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12px] font-semibold text-[#191919]">
-                        {row.label || `Row ${rowIndex + 1}`}
+                        {row.label ||
+                          t("editorTools.infographic.rowN", {
+                            n: rowIndex + 1,
+                          })}
                       </span>
                       <span className="mt-0.5 block text-[10px] text-[#8B8B94]">
-                        {rowItems.length} {rowItems.length === 1 ? "task" : "tasks"}
+                        {t(
+                          rowItems.length === 1
+                            ? "editorTools.infographic.taskCountOne"
+                            : "editorTools.infographic.taskCountMany",
+                          { count: rowItems.length },
+                        )}
                       </span>
                     </span>
                     {isExpanded ? (
@@ -776,11 +837,11 @@ function GanttEditor({
                     <MoveButtons
                       index={rowIndex}
                       length={data.rows.length}
-                      label="row"
+                      label={t("editorTools.infographic.itemRow")}
                       onMove={(direction) => moveRow(rowIndex, direction)}
                     />
                     <MiniButton
-                      label="Delete row"
+                      label={t("editorTools.infographic.deleteRow")}
                       disabled={data.rows.length <= 1}
                       onClick={() => deleteRow(rowIndex)}
                     >
@@ -792,9 +853,14 @@ function GanttEditor({
                 {isExpanded ? (
                   <div id={rowPanelId} className="mt-4">
                     <div className="flex items-end gap-3">
-                      <LabeledField className="min-w-0 flex-1" label="Row label">
+                      <LabeledField
+                        className="min-w-0 flex-1"
+                        label={t("editorTools.infographic.rowLabel")}
+                      >
                         <TextInput
-                          ariaLabel={`Row ${rowIndex + 1} label`}
+                          ariaLabel={t("editorTools.infographic.rowLabelAria", {
+                            n: rowIndex + 1,
+                          })}
                           className="font-semibold"
                           value={row.label}
                           onChange={(label) =>
@@ -810,7 +876,7 @@ function GanttEditor({
                       </LabeledField>
                       <AddButton
                         compact
-                        label="Add task"
+                        label={t("editorTools.infographic.addTask")}
                         onClick={() => addTask(rowIndex)}
                       />
                     </div>
@@ -866,7 +932,7 @@ function GanttEditor({
                       ))}
                       {rowItems.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-[#DCDDDF] bg-[#FAFAFC] px-4 py-6 text-center text-[11px] text-[#8B8B94]">
-                          This row has no tasks yet. Use “Add task” to create one.
+                          {t("editorTools.infographic.emptyRowHint")}
                         </div>
                       ) : null}
                     </div>
@@ -896,6 +962,7 @@ function GanttTaskEditor({
   onChange: (item: GanttInfographicItem) => void;
   onDelete: () => void;
 }) {
+  const t = useT();
   const commit = (next: GanttInfographicItem) =>
     onChange(normalizeGanttItem(next, columnCount));
   return (
@@ -906,17 +973,19 @@ function GanttTaskEditor({
             {taskIndex + 1}
           </span>
           <span className="text-[11px] font-semibold text-[#555560]">
-            Task {taskIndex + 1}
+            {t("editorTools.infographic.taskN", { n: taskIndex + 1 })}
           </span>
         </div>
-        <MiniButton label="Delete task" onClick={onDelete}>
+        <MiniButton label={t("editorTools.infographic.deleteTask")} onClick={onDelete}>
           <Trash2 size={13} />
         </MiniButton>
       </div>
       <div className="p-3">
-        <LabeledField label="Task name">
+        <LabeledField label={t("editorTools.infographic.taskName")}>
           <TextInput
-            ariaLabel={`Task ${taskIndex + 1} name`}
+            ariaLabel={t("editorTools.infographic.taskNameAria", {
+              n: taskIndex + 1,
+            })}
             value={item.name}
             onChange={(name) => commit({ ...item, name })}
           />
@@ -928,13 +997,13 @@ function GanttTaskEditor({
         />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <GanttPositionEditor
-            label="Start"
+            label={t("editorTools.layout.start")}
             columns={columns}
             value={item.start}
             onChange={(start) => commit({ ...item, start })}
           />
           <GanttPositionEditor
-            label="End"
+            label={t("editorTools.layout.end")}
             columns={columns}
             value={item.end}
             onChange={(end) => commit({ ...item, end })}
@@ -954,18 +1023,25 @@ function GanttTaskRangePreview({
   columns: GanttInfographicData["columns"];
   item: GanttInfographicItem;
 }) {
+  const t = useT();
   const count = Math.max(1, columnCount);
   const startUnits = Math.min(count, Math.max(0, ganttPositionToUnits(item.start)));
   const endUnits = Math.min(count, Math.max(startUnits, ganttPositionToUnits(item.end)));
   const left = (startUnits / count) * 100;
   const width = Math.max(1.5, ((endUnits - startUnits) / count) * 100);
-  const startLabel = columns[item.start.column]?.label || `Column ${item.start.column + 1}`;
-  const endLabel = columns[item.end.column]?.label || `Column ${item.end.column + 1}`;
+  const startLabel =
+    columns[item.start.column]?.label ||
+    t("editorTools.infographic.columnN", { n: item.start.column + 1 });
+  const endLabel =
+    columns[item.end.column]?.label ||
+    t("editorTools.infographic.columnN", { n: item.end.column + 1 });
 
   return (
     <div className="mt-3 rounded-xl border border-[#E5E6EB] bg-white p-3">
       <div className="mb-2 flex items-center justify-between gap-3 text-[10px]">
-        <span className="font-medium text-[#686873]">Schedule preview</span>
+        <span className="font-medium text-[#686873]">
+          {t("editorTools.infographic.schedulePreview")}
+        </span>
         <span className="truncate text-[#8B8B94]">
           {startLabel} → {endLabel}
         </span>
@@ -991,6 +1067,7 @@ function GanttPositionEditor({
   value: GanttInfographicPosition;
   onChange: (value: GanttInfographicPosition) => void;
 }) {
+  const t = useT();
   const offset = value.offset ?? 0;
   return (
     <div className="rounded-xl border border-[#E5E6EB] bg-white p-3">
@@ -1001,9 +1078,9 @@ function GanttPositionEditor({
         </span>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
-        <LabeledField label="Column">
+        <LabeledField label={t("editorTools.infographic.columnLabel")}>
           <select
-            aria-label={`${label} column`}
+            aria-label={t("editorTools.infographic.columnAria", { label })}
             className={inputClassName}
             value={Math.min(columns.length - 1, Math.max(0, value.column))}
             onChange={(event) =>
@@ -1012,15 +1089,16 @@ function GanttPositionEditor({
           >
             {columns.map((column, index) => (
               <option key={`${label}-column-${index}`} value={index}>
-                {column.label || `Column ${index + 1}`}
+                {column.label ||
+                  t("editorTools.infographic.columnN", { n: index + 1 })}
               </option>
             ))}
           </select>
         </LabeledField>
-        <LabeledField label="Position (%)">
+        <LabeledField label={t("editorTools.infographic.positionPercent")}>
           <NumberInput
             compact
-            label={`${label} position percentage`}
+            label={t("editorTools.infographic.positionPercentAria", { label })}
             max={100}
             min={0}
             step={5}
@@ -1042,99 +1120,121 @@ function TimelineEditor({
   data: ItemCollectionInfographicData;
   onChange: (data: ItemCollectionInfographicData) => void;
 }) {
+  const t = useT();
   const latestMilestone = Number(data.items.at(-1)?.heading);
   const config = (() => {
     switch (data.type) {
       case "roadmap":
         return {
           itemLabel: "stop",
-          description: "Edit every stop's heading, description, and order.",
-          heading: `Stop ${data.items.length + 1}`,
+          description: t("editorTools.infographic.roadmapDescription"),
+          heading: t("editorTools.infographic.newStop", {
+            n: data.items.length + 1,
+          }),
           showIcons: false,
         };
       case "milestone_timeline":
         return {
           itemLabel: "milestone",
-          description: "Edit each milestone's label, description, and order.",
+          description: t("editorTools.infographic.milestoneDescription"),
           heading: Number.isFinite(latestMilestone)
             ? String(latestMilestone + 1)
-            : `Milestone ${data.items.length + 1}`,
+            : t("editorTools.infographic.newMilestone", {
+                n: data.items.length + 1,
+              }),
           showIcons: false,
         };
       case "staircase":
         return {
           itemLabel: "step",
-          description:
-            "Edit every staircase step's icon, heading, description, and order.",
-          heading: `Step ${data.items.length + 1}`,
+          description: t("editorTools.infographic.staircaseDescription"),
+          heading: t("editorTools.infographic.newStep", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "supply_chain":
         return {
           itemLabel: "stage",
-          description: "Edit every supply-chain stage, icon, label, and description.",
-          heading: `Stage ${data.items.length + 1}`,
+          description: t("editorTools.infographic.supplyChainDescription"),
+          heading: t("editorTools.infographic.newStage", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "stair_step_blocks":
         return {
           itemLabel: "step",
-          description: "Edit every step block's icon, heading, and description.",
-          heading: `Step ${String(data.items.length + 1).padStart(2, "0")}`,
+          description: t("editorTools.infographic.stepBlocksDescription"),
+          heading: t("editorTools.infographic.newStep", {
+            n: String(data.items.length + 1).padStart(2, "0"),
+          }),
           showIcons: true,
         };
       case "maturity_model":
         return {
           itemLabel: "level",
-          description: "Edit every maturity level's icon, heading, and explanation.",
-          heading: `Level ${data.items.length + 1}`,
+          description: t("editorTools.infographic.maturityDescription"),
+          heading: t("editorTools.infographic.newLevel", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "diagonal_circles":
         return {
           itemLabel: "pillar",
-          description: "Edit each overlapping circle's icon, heading, and callout.",
-          heading: `Pillar ${data.items.length + 1}`,
+          description: t("editorTools.infographic.diagonalCirclesDescription"),
+          heading: t("editorTools.infographic.newPillar", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "chevron_process":
         return {
           itemLabel: "stage",
-          description:
-            "Edit every chevron stage's heading, description, and order.",
-          heading: `Stage ${data.items.length + 1}`,
+          description: t("editorTools.infographic.chevronDescription"),
+          heading: t("editorTools.infographic.newStage", {
+            n: data.items.length + 1,
+          }),
           showIcons: false,
         };
       case "pyramid":
         return {
           itemLabel: "level",
-          description:
-            "Edit each pyramid level's icon, heading, description, and order.",
-          heading: `Level ${data.items.length + 1}`,
+          description: t("editorTools.infographic.pyramidDescription"),
+          heading: t("editorTools.infographic.newLevel", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "segmented_wheel":
         return {
           itemLabel: "segment",
-          description:
-            "Edit every wheel segment's icon, heading, description, and order.",
-          heading: `Segment ${data.items.length + 1}`,
+          description: t("editorTools.infographic.segmentedWheelDescription"),
+          heading: t("editorTools.infographic.newSegment", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
       case "customer_journey":
         return {
           itemLabel: "stage",
-          description:
-            "Edit every visible journey stage's icon, heading, description, and order.",
-          heading: data.items.length === 0 ? "" : `Stage ${data.items.length}`,
+          description: t("editorTools.infographic.customerJourneyDescription"),
+          heading:
+            data.items.length === 0
+              ? ""
+              : t("editorTools.infographic.newStage", {
+                  n: data.items.length,
+                }),
           showIcons: true,
         };
       default:
         return {
           itemLabel: "step",
-          description:
-            "Edit each step's icon, heading, description, and order.",
-          heading: `Step ${data.items.length + 1}`,
+          description: t("editorTools.infographic.timelineDefaultDescription"),
+          heading: t("editorTools.infographic.newStep", {
+            n: data.items.length + 1,
+          }),
           showIcons: true,
         };
     }
@@ -1183,7 +1283,7 @@ function TimelineEditor({
           ? defaultInfographicIcon(data.items.length)
           : null,
         heading: config.heading,
-        description: "Add a description.",
+        description: t("editorTools.infographic.defaultItemDescription"),
       })}
     />
   );
@@ -1196,12 +1296,13 @@ function RadialCycleEditor({
   data: RadialCycleInfographicData;
   onChange: (data: RadialCycleInfographicData) => void;
 }) {
+  const t = useT();
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   return (
     <div className="space-y-4">
       <EditorSection
-        title="Center image"
-        description="Choose the image displayed at the center of the cycle."
+        title={t("editorTools.infographic.centerImageTitle")}
+        description={t("editorTools.infographic.centerImageDescription")}
       >
         <button
           type="button"
@@ -1222,23 +1323,27 @@ function RadialCycleEditor({
           </span>
           <span>
             <span className="block text-[12px] font-semibold text-[#191919]">
-              {data.center_image ? "Change center image" : "Add center image"}
+              {data.center_image
+                ? t("editorTools.infographic.changeCenterImage")
+                : t("editorTools.infographic.addCenterImage")}
             </span>
             <span className="mt-1 block text-[10px] leading-4 text-[#8B8B94]">
-              Search, upload, or select a presentation image.
+              {t("editorTools.infographic.centerImageHint")}
             </span>
           </span>
         </button>
       </EditorSection>
       <ItemCollectionEditor
-        description="Edit every cycle stage's heading, description, and order."
+        description={t("editorTools.infographic.cycleStagesDescription")}
         itemLabel="stage"
         items={data.items}
         maxItems={8}
         onChange={(items) => onChange({ ...data, items })}
         onCreate={() => ({
-          heading: `Stage ${data.items.length + 1}`,
-          description: "Add a description.",
+          heading: t("editorTools.infographic.newStage", {
+            n: data.items.length + 1,
+          }),
+          description: t("editorTools.infographic.defaultItemDescription"),
         })}
         showIcons={false}
       />
@@ -1265,17 +1370,20 @@ function FunnelEditor({
     data: ConversionFunnelInfographicData | VerticalFunnelInfographicData,
   ) => void;
 }) {
+  const t = useT();
   return (
     <ItemCollectionEditor<ConversionFunnelInfographicItem>
-      description="Edit each funnel stage's percentage, heading, description, and order."
+      description={t("editorTools.infographic.funnelDescription")}
       itemLabel="stage"
       items={data.items}
       maxItems={8}
       onChange={(items) => onChange({ ...data, items })}
       onCreate={() => ({
         value: Math.max(0, (data.items.at(-1)?.value ?? 60) - 10),
-        heading: `Stage ${data.items.length + 1}`,
-        description: "Add a description.",
+        heading: t("editorTools.infographic.newStage", {
+          n: data.items.length + 1,
+        }),
+        description: t("editorTools.infographic.defaultItemDescription"),
       })}
       showIcons={false}
       showValue
@@ -1290,6 +1398,7 @@ function BeforeAfterEditor({
   data: BeforeAfterInfographicData;
   onChange: (data: BeforeAfterInfographicData) => void;
 }) {
+  const t = useT();
   const [expandedRow, setExpandedRow] = useState<number | null>(0);
   const [editingIconIndex, setEditingIconIndex] = useState<number | null>(null);
   const rowRefs = useRef(new Map<number, HTMLDivElement>());
@@ -1339,13 +1448,13 @@ function BeforeAfterEditor({
         ...data.items,
         {
           icon: defaultInfographicIcon(data.items.length),
-          heading: `Before ${nextRow + 1}`,
-          description: "Add a description.",
+          heading: t("editorTools.infographic.beforeN", { n: nextRow + 1 }),
+          description: t("editorTools.infographic.defaultItemDescription"),
         },
         {
           icon: defaultInfographicIcon(data.items.length + 1),
-          heading: `After ${nextRow + 1}`,
-          description: "Add a description.",
+          heading: t("editorTools.infographic.afterN", { n: nextRow + 1 }),
+          description: t("editorTools.infographic.defaultItemDescription"),
         },
       ],
     });
@@ -1376,21 +1485,21 @@ function BeforeAfterEditor({
   return (
     <div className="space-y-4">
       <EditorSection
-        title="Column labels"
-        description="Edit the labels shown above the two comparison columns."
+        title={t("editorTools.infographic.columnLabelsTitle")}
+        description={t("editorTools.infographic.columnLabelsDescription")}
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <LabeledField label="Before label">
+          <LabeledField label={t("editorTools.infographic.beforeLabel")}>
             <TextInput
-              ariaLabel="Before comparison label"
-              value={data.before_label ?? "Before"}
+              ariaLabel={t("editorTools.infographic.beforeLabelAria")}
+              value={data.before_label ?? t("editorTools.infographic.before")}
               onChange={(before_label) => onChange({ ...data, before_label })}
             />
           </LabeledField>
-          <LabeledField label="After label">
+          <LabeledField label={t("editorTools.infographic.afterLabel")}>
             <TextInput
-              ariaLabel="After comparison label"
-              value={data.after_label ?? "After"}
+              ariaLabel={t("editorTools.infographic.afterLabelAria")}
+              value={data.after_label ?? t("editorTools.infographic.after")}
               onChange={(after_label) => onChange({ ...data, after_label })}
             />
           </LabeledField>
@@ -1398,13 +1507,13 @@ function BeforeAfterEditor({
       </EditorSection>
 
       <EditorSection
-        title="Comparison rows"
-        description="Edit each before-and-after pair, including both icons and descriptions."
+        title={t("editorTools.infographic.comparisonRowsTitle")}
+        description={t("editorTools.infographic.comparisonRowsDescription")}
         action={
           <AddButton
             compact
             disabled={pairs.length >= 5}
-            label="Add row"
+            label={t("editorTools.infographic.addRow")}
             onClick={addPair}
           />
         }
@@ -1432,9 +1541,14 @@ function BeforeAfterEditor({
                       {rowIndex + 1}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[12px] font-semibold text-[#191919]">Comparison {rowIndex + 1}</span>
+                      <span className="block text-[12px] font-semibold text-[#191919]">
+                        {t("editorTools.infographic.comparisonN", {
+                          n: rowIndex + 1,
+                        })}
+                      </span>
                       <span className="mt-0.5 block truncate text-[10px] text-[#8B8B94]">
-                        {pair[0].heading || "Before"} → {pair[1].heading || "After"}
+                        {pair[0].heading || t("editorTools.infographic.before")} →{" "}
+                        {pair[1].heading || t("editorTools.infographic.after")}
                       </span>
                     </span>
                     {expanded ? <ChevronDown size={15} className="text-[#777781]" /> : <ChevronRight size={15} className="text-[#777781]" />}
@@ -1443,11 +1557,11 @@ function BeforeAfterEditor({
                     <MoveButtons
                       index={rowIndex}
                       length={pairs.length}
-                      label="comparison"
+                      label={t("editorTools.infographic.itemComparison")}
                       onMove={(direction) => movePair(rowIndex, direction)}
                     />
                     <MiniButton
-                      label="Delete comparison"
+                      label={t("editorTools.infographic.deleteComparison")}
                       disabled={pairs.length <= 1}
                       onClick={() => deletePair(rowIndex)}
                     >
@@ -1462,8 +1576,8 @@ function BeforeAfterEditor({
                       const itemIndex = rowIndex * 2 + sideIndex;
                       const icon = normalizeInfographicIcon(item.icon) ?? defaultInfographicIcon(itemIndex);
                       const sideLabel = sideIndex === 0
-                        ? data.before_label ?? "Before"
-                        : data.after_label ?? "After";
+                        ? data.before_label ?? t("editorTools.infographic.before")
+                        : data.after_label ?? t("editorTools.infographic.after");
                       return (
                         <div key={`${rowIndex}-${sideIndex}`} className="rounded-xl border border-[#ECECF1] bg-[#FAFAFC] p-3">
                           <div className="mb-3 text-[11px] font-semibold text-[#555560]">{sideLabel}</div>
@@ -1471,18 +1585,26 @@ function BeforeAfterEditor({
                             <div>
                               <button
                                 type="button"
-                                aria-label={`Change ${sideLabel} row ${rowIndex + 1} icon`}
+                                aria-label={t("editorTools.infographic.changeSideRowIconAria", {
+                                  label: sideLabel,
+                                  n: rowIndex + 1,
+                                })}
                                 className="flex w-full flex-col items-center gap-2 rounded-xl border border-[#DFE0E6] bg-white px-2 py-3 outline-none transition hover:border-[#BDAAF8] focus-visible:ring-2 focus-visible:ring-[#D8CEFA]"
                                 onClick={() => setEditingIconIndex(itemIndex)}
                               >
                                 <span className="grid size-11 place-items-center rounded-xl bg-[#506FBE]">
                                   <InfographicIconPreview color={icon.color} url={icon.url} />
                                 </span>
-                                <span className="text-[9px] font-semibold text-[#7C51F8]">Change icon</span>
+                                <span className="text-[9px] font-semibold text-[#7C51F8]">
+                                  {t("editorTools.infographic.changeIcon")}
+                                </span>
                               </button>
                               <div className="mt-2">
                                 <DeferredColorInput
-                                  aria-label={`${sideLabel} row ${rowIndex + 1} icon color`}
+                                  aria-label={t("editorTools.infographic.sideRowIconColorAria", {
+                                    label: sideLabel,
+                                    n: rowIndex + 1,
+                                  })}
                                   className="h-8 w-full rounded-lg border border-[#E6E6EA] bg-white p-1"
                                   value={icon.color}
                                   onCommit={(color) => updatePairItem(rowIndex, sideIndex as 0 | 1, { icon: { ...icon, color } })}
@@ -1490,16 +1612,22 @@ function BeforeAfterEditor({
                               </div>
                             </div>
                             <div>
-                              <LabeledField label="Heading">
+                              <LabeledField label={t("editorTools.infographic.headingLabel")}>
                                 <TextInput
-                                  ariaLabel={`${sideLabel} row ${rowIndex + 1} heading`}
+                                  ariaLabel={t("editorTools.infographic.sideRowHeadingAria", {
+                                    label: sideLabel,
+                                    n: rowIndex + 1,
+                                  })}
                                   value={item.heading ?? ""}
                                   onChange={(heading) => updatePairItem(rowIndex, sideIndex as 0 | 1, { heading })}
                                 />
                               </LabeledField>
-                              <LabeledField className="mt-2" label="Description">
+                              <LabeledField className="mt-2" label={t("editorTools.infographic.descriptionLabel")}>
                                 <textarea
-                                  aria-label={`${sideLabel} row ${rowIndex + 1} description`}
+                                  aria-label={t("editorTools.infographic.sideRowDescriptionAria", {
+                                    label: sideLabel,
+                                    n: rowIndex + 1,
+                                  })}
                                   className="min-h-[72px] w-full resize-y rounded-lg border border-[#E6E6EA] bg-white px-3 py-2 text-[12px] leading-5 text-[#191919] outline-none focus:border-[#7C51F8]"
                                   maxLength={280}
                                   value={item.description ?? ""}
@@ -1522,7 +1650,11 @@ function BeforeAfterEditor({
       {editingIconIndex != null && editingItem ? (
         <IconsEditor
           currentIconUrl={normalizeInfographicIcon(editingItem.icon)?.url ?? defaultInfographicIcon(editingIconIndex).url}
-          icon_prompt={[editingItem.heading?.trim() || `Comparison item ${editingIconIndex + 1}`]}
+          icon_prompt={[
+            editingItem.heading?.trim() ||
+              t("editorTools.infographic.comparisonItemN", {
+                n: editingIconIndex + 1,
+              })]}
           onClose={() => setEditingIconIndex(null)}
           onIconChange={(url) => {
             onChange({
@@ -1547,11 +1679,12 @@ function MindMapEditor({
   data: MindMapInfographicData;
   onChange: (data: MindMapInfographicData) => void;
 }) {
+  const t = useT();
   const nested = data.items.length === 1 ? data.items[0]?.items ?? [] : [];
   const items = nested.length > 0 ? nested : data.items;
   return (
     <ItemCollectionEditor
-      description="Edit every visible node's icon, heading, description, and order."
+      description={t("editorTools.infographic.nodesDescription")}
       itemLabel="node"
       items={items}
       onChange={(nextItems) =>
@@ -1562,8 +1695,8 @@ function MindMapEditor({
       }
       onCreate={() => ({
         icon: defaultInfographicIcon(items.length),
-        heading: `Node ${items.length + 1}`,
-        description: "Add a description.",
+        heading: t("editorTools.infographic.newNode", { n: items.length + 1 }),
+        description: t("editorTools.infographic.defaultItemDescription"),
         items: [],
       })}
     />
@@ -1574,20 +1707,29 @@ function PillarFrameworkEditor({ data, onChange }: {
   data: PillarFrameworkInfographicData;
   onChange: (data: PillarFrameworkInfographicData) => void;
 }) {
+  const t = useT();
   return (
     <div className="space-y-4">
-      <EditorSection title="Framework title" description="Edit the title displayed inside the roof.">
-        <TextInput ariaLabel="Pillar framework title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <EditorSection
+        title={t("editorTools.infographic.frameworkTitleLabel")}
+        description={t("editorTools.infographic.frameworkTitleDescription")}
+      >
+        <TextInput ariaLabel={t("editorTools.infographic.frameworkTitleAria")} value={data.title} onChange={(title) => onChange({ ...data, title })} />
       </EditorSection>
       <ItemCollectionEditor
-        description="Edit each pillar's icon, title, description, and focus label."
+        description={t("editorTools.infographic.pillarDescription")}
         itemLabel="pillar"
         items={data.items}
         minItems={3}
         maxItems={7}
         showFocus
         onChange={(items) => onChange({ ...data, items })}
-        onCreate={() => ({ icon: defaultInfographicIcon(data.items.length), heading: `Pillar ${data.items.length + 1}`, description: "Add a description.", focus: "Focus area" })}
+        onCreate={() => ({
+          icon: defaultInfographicIcon(data.items.length),
+          heading: t("editorTools.infographic.newPillar", { n: data.items.length + 1 }),
+          description: t("editorTools.infographic.defaultItemDescription"),
+          focus: t("editorTools.infographic.pillarFocusContent"),
+        })}
       />
     </div>
   );
@@ -1597,13 +1739,17 @@ function TransformationHubEditor({ data, onChange }: {
   data: TransformationHubInfographicData;
   onChange: (data: TransformationHubInfographicData) => void;
 }) {
+  const t = useT();
   return (
     <div className="space-y-4">
-      <EditorSection title="Center label" description="Edit the transformation hub label.">
-        <TextInput ariaLabel="Transformation hub center label" value={data.center_label} onChange={(center_label) => onChange({ ...data, center_label })} />
+      <EditorSection
+        title={t("editorTools.infographic.centerLabelTitle")}
+        description={t("editorTools.infographic.hubCenterLabelDescription")}
+      >
+        <TextInput ariaLabel={t("editorTools.infographic.hubCenterLabelAria")} value={data.center_label} onChange={(center_label) => onChange({ ...data, center_label })} />
       </EditorSection>
       <ItemCollectionEditor
-        description="Edit the capability names connected to the central hub."
+        description={t("editorTools.infographic.hubDescription")}
         itemLabel="capability"
         items={data.items}
         minItems={2}
@@ -1611,7 +1757,11 @@ function TransformationHubEditor({ data, onChange }: {
         showIcons={false}
         showDescription={false}
         onChange={(items) => onChange({ ...data, items })}
-        onCreate={() => ({ heading: `Capability ${data.items.length + 1}` })}
+        onCreate={() => ({
+          heading: t("editorTools.infographic.newCapability", {
+            n: data.items.length + 1,
+          }),
+        })}
       />
     </div>
   );
@@ -1621,19 +1771,27 @@ function RiskMatrixEditor({ data, onChange }: {
   data: RiskMatrixInfographicData;
   onChange: (data: RiskMatrixInfographicData) => void;
 }) {
+  const t = useT();
   return (
     <div className="space-y-4">
-      <EditorSection title="Center label" description="Use four characters for the central risk mark.">
-        <TextInput ariaLabel="Risk matrix center label" value={data.center_label} onChange={(center_label) => onChange({ ...data, center_label: center_label.slice(0, 4) })} />
+      <EditorSection
+        title={t("editorTools.infographic.centerLabelTitle")}
+        description={t("editorTools.infographic.riskCenterLabelDescription")}
+      >
+        <TextInput ariaLabel={t("editorTools.infographic.riskCenterLabelAria")} value={data.center_label} onChange={(center_label) => onChange({ ...data, center_label: center_label.slice(0, 4) })} />
       </EditorSection>
       <ItemCollectionEditor
-        description="Edit the four risk activities and their icons. Their positions stay fixed."
+        description={t("editorTools.infographic.riskDescription")}
         itemLabel="activity"
         items={data.items}
         minItems={4}
         maxItems={4}
         onChange={(items) => onChange({ ...data, items })}
-        onCreate={() => ({ icon: defaultInfographicIcon(data.items.length), heading: "Activity", description: "Add a description." })}
+        onCreate={() => ({
+          icon: defaultInfographicIcon(data.items.length),
+          heading: t("editorTools.infographic.activityContent"),
+          description: t("editorTools.infographic.defaultItemDescription"),
+        })}
       />
     </div>
   );
@@ -1646,22 +1804,23 @@ function ImpactEffortEditor({
   data: ImpactEffortMatrixInfographicData;
   onChange: (data: ImpactEffortMatrixInfographicData) => void;
 }) {
+  const t = useT();
   return (
     <div className="space-y-4">
       <EditorSection
-        title="Axis labels"
-        description="Edit the impact and effort axis captions and their range labels."
+        title={t("editorTools.infographic.axisLabelsTitle")}
+        description={t("editorTools.infographic.axisLabelsDescription")}
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {([
-            ["Impact axis", "x_axis_label"],
-            ["Effort axis", "y_axis_label"],
-            ["Low label", "low_label"],
-            ["High label", "high_label"],
-          ] as const).map(([label, key]) => (
-            <LabeledField key={key} label={label}>
+            ["editorTools.infographic.impactAxisLabel", "x_axis_label"],
+            ["editorTools.infographic.effortAxisLabel", "y_axis_label"],
+            ["editorTools.infographic.lowLabel", "low_label"],
+            ["editorTools.infographic.highLabel", "high_label"],
+          ] as const).map(([labelKey, key]) => (
+            <LabeledField key={key} label={t(labelKey)}>
               <TextInput
-                ariaLabel={label}
+                ariaLabel={t(labelKey)}
                 value={data[key] ?? ""}
                 onChange={(value) => onChange({ ...data, [key]: value })}
               />
@@ -1670,14 +1829,17 @@ function ImpactEffortEditor({
         </div>
       </EditorSection>
       <ItemCollectionEditor
-        description="Edit the four quadrant titles and explanations. Their positions stay fixed."
+        description={t("editorTools.infographic.quadrantDescription")}
         itemLabel="quadrant"
         items={data.items}
         minItems={4}
         maxItems={4}
         showIcons={false}
         onChange={(items) => onChange({ ...data, items })}
-        onCreate={() => ({ heading: "Quadrant", description: "Add a description." })}
+        onCreate={() => ({
+          heading: t("editorTools.infographic.quadrantContent"),
+          description: t("editorTools.infographic.defaultItemDescription"),
+        })}
       />
     </div>
   );
@@ -1690,6 +1852,7 @@ function ComparisonMatrixEditor({
   data: ComparisonMatrixInfographicData;
   onChange: (data: ComparisonMatrixInfographicData) => void;
 }) {
+  const t = useT();
   const [editingIconIndex, setEditingIconIndex] = useState<number | null>(null);
   const updateCriteria = (criteria: string[]) =>
     onChange({
@@ -1713,23 +1876,64 @@ function ComparisonMatrixEditor({
   return (
     <div className="space-y-4">
       <EditorSection
-        title="Criteria"
-        description="Add, rename, or remove the criteria shown as matrix rows."
-        action={<AddButton compact disabled={data.criteria.length >= 8} label="Add criterion" onClick={() => updateCriteria([...data.criteria, `Criterion ${data.criteria.length + 1}`])} />}
+        title={t("editorTools.infographic.criteriaTitle")}
+        description={t("editorTools.infographic.criteriaDescription")}
+        action={
+          <AddButton
+            compact
+            disabled={data.criteria.length >= 8}
+            label={t("editorTools.infographic.addCriterion")}
+            onClick={() =>
+              updateCriteria([
+                ...data.criteria,
+                t("editorTools.infographic.newCriterion", {
+                  n: data.criteria.length + 1,
+                }),
+              ])
+            }
+          />
+        }
       >
         <div className="space-y-2">
           {data.criteria.map((criterion, index) => (
             <div key={`criterion-${index}`} className="flex gap-2">
-              <TextInput ariaLabel={`Criterion ${index + 1}`} value={criterion} onChange={(value) => updateCriteria(data.criteria.map((current, itemIndex) => itemIndex === index ? value : current))} />
-              <MiniButton label="Delete criterion" disabled={data.criteria.length <= 1} onClick={() => updateCriteria(data.criteria.filter((_, itemIndex) => itemIndex !== index))}><Trash2 size={14} /></MiniButton>
+              <TextInput
+                ariaLabel={t("editorTools.infographic.criterionN", {
+                  n: index + 1,
+                })}
+                value={criterion}
+                onChange={(value) => updateCriteria(data.criteria.map((current, itemIndex) => itemIndex === index ? value : current))}
+              />
+              <MiniButton label={t("editorTools.infographic.deleteCriterion")} disabled={data.criteria.length <= 1} onClick={() => updateCriteria(data.criteria.filter((_, itemIndex) => itemIndex !== index))}><Trash2 size={14} /></MiniButton>
             </div>
           ))}
         </div>
       </EditorSection>
       <EditorSection
-        title="Options"
-        description="Edit every option's icon, heading, and value for each criterion."
-        action={<AddButton compact disabled={data.items.length >= 6} label="Add option" onClick={() => onChange({ ...data, items: [...data.items, { icon: defaultInfographicIcon(data.items.length), heading: `Option ${data.items.length + 1}`, values: data.criteria.map(() => "") }] })} />}
+        title={t("editorTools.infographic.optionsTitle")}
+        description={t("editorTools.infographic.optionsDescription")}
+        action={
+          <AddButton
+            compact
+            disabled={data.items.length >= 6}
+            label={t("editorTools.infographic.addOption")}
+            onClick={() =>
+              onChange({
+                ...data,
+                items: [
+                  ...data.items,
+                  {
+                    icon: defaultInfographicIcon(data.items.length),
+                    heading: t("editorTools.infographic.newOption", {
+                      n: data.items.length + 1,
+                    }),
+                    values: data.criteria.map(() => ""),
+                  },
+                ],
+              })
+            }
+          />
+        }
       >
         <div className="space-y-3">
           {data.items.map((item, index) => {
@@ -1737,19 +1941,50 @@ function ComparisonMatrixEditor({
             return (
               <div key={`comparison-option-${index}`} className="rounded-xl border border-[#ECECF1] bg-white p-4">
                 <div className="mb-4 flex flex-wrap items-end gap-3 border-b border-[#EFEFF3] pb-4">
-                  <button type="button" aria-label={`Change option ${index + 1} icon`} className="grid size-11 place-items-center rounded-lg bg-[#506FBE] outline-none transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#D8CEFA]" onClick={() => setEditingIconIndex(index)}>
+                  <button
+                    type="button"
+                    aria-label={t("editorTools.infographic.changeOptionIconAria", { n: index + 1 })}
+                    className="grid size-11 place-items-center rounded-lg bg-[#506FBE] outline-none transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#D8CEFA]"
+                    onClick={() => setEditingIconIndex(index)}
+                  >
                     <InfographicIconPreview color={icon.color} url={icon.url} />
                   </button>
                   <div className="min-w-[180px] flex-1">
-                    <LabeledField label="Heading"><TextInput ariaLabel={`Option ${index + 1} heading`} value={item.heading} onChange={(heading) => updateItem(index, { heading })} /></LabeledField>
+                    <LabeledField label={t("editorTools.infographic.headingLabel")}>
+                      <TextInput
+                        ariaLabel={t("editorTools.infographic.optionHeadingAria", { n: index + 1 })}
+                        value={item.heading}
+                        onChange={(heading) => updateItem(index, { heading })}
+                      />
+                    </LabeledField>
                   </div>
-                  <DeferredColorInput aria-label={`Option ${index + 1} icon color`} className="h-9 w-14 rounded-lg border border-[#E6E6EA] bg-white p-1" value={icon.color} onCommit={(color) => updateItem(index, { icon: { ...icon, color } })} />
-                  <MiniButton label="Delete option" disabled={data.items.length <= 1} onClick={() => onChange({ ...data, items: data.items.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 size={14} /></MiniButton>
+                  <DeferredColorInput
+                    aria-label={t("editorTools.infographic.optionIconColorAria", { n: index + 1 })}
+                    className="h-9 w-14 rounded-lg border border-[#E6E6EA] bg-white p-1"
+                    value={icon.color}
+                    onCommit={(color) => updateItem(index, { icon: { ...icon, color } })}
+                  />
+                  <MiniButton label={t("editorTools.infographic.deleteOption")} disabled={data.items.length <= 1} onClick={() => onChange({ ...data, items: data.items.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 size={14} /></MiniButton>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {data.criteria.map((criterion, valueIndex) => (
-                    <LabeledField key={`${index}-${valueIndex}`} label={criterion || `Criterion ${valueIndex + 1}`}>
-                      <TextInput ariaLabel={`${item.heading} ${criterion}`} value={item.values[valueIndex] ?? ""} onChange={(value) => updateItem(index, { values: data.criteria.map((_, criterionIndex) => criterionIndex === valueIndex ? value : item.values[criterionIndex] ?? "") })} />
+                    <LabeledField
+                      key={`${index}-${valueIndex}`}
+                      label={
+                        criterion ||
+                        t("editorTools.infographic.criterionN", {
+                          n: valueIndex + 1,
+                        })
+                      }
+                    >
+                      <TextInput
+                        ariaLabel={t("editorTools.infographic.valueFieldAria", {
+                          heading: item.heading,
+                          criterion,
+                        })}
+                        value={item.values[valueIndex] ?? ""}
+                        onChange={(value) => updateItem(index, { values: data.criteria.map((_, criterionIndex) => criterionIndex === valueIndex ? value : item.values[criterionIndex] ?? "") })}
+                      />
                     </LabeledField>
                   ))}
                 </div>
@@ -1761,7 +1996,7 @@ function ComparisonMatrixEditor({
       {editingIconIndex != null && editingItem ? (
         <IconsEditor
           currentIconUrl={normalizeInfographicIcon(editingItem.icon)?.url ?? defaultInfographicIcon(editingIconIndex).url}
-          icon_prompt={[editingItem.heading || `Option ${editingIconIndex + 1}`]}
+          icon_prompt={[editingItem.heading || t("editorTools.infographic.newOption", { n: editingIconIndex + 1 })]}
           onClose={() => setEditingIconIndex(null)}
           onIconChange={(url) => updateItem(editingIconIndex, { icon: { url, color: normalizeInfographicIcon(editingItem.icon)?.color ?? defaultInfographicIcon(editingIconIndex).color } })}
         />
@@ -1777,11 +2012,12 @@ function HierarchyEditor({
   data: OrgChartInfographicData | DecisionTreeInfographicData;
   onChange: (data: OrgChartInfographicData | DecisionTreeInfographicData) => void;
 }) {
+  const t = useT();
   const updateItem = (index: number, patch: Partial<(typeof data.items)[number]>) =>
     onChange({ ...data, items: data.items.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item) });
   const addItem = () => {
     const id = `node-${Date.now().toString(36)}-${data.items.length + 1}`;
-    onChange({ ...data, items: [...data.items, { id, parent_id: data.items[0]?.id ?? null, heading: "New item", description: data.type === "org_chart" ? "Role" : null }] });
+    onChange({ ...data, items: [...data.items, { id, parent_id: data.items[0]?.id ?? null, heading: t("editorTools.infographic.newItemContent"), description: data.type === "org_chart" ? t("editorTools.infographic.roleLabel") : null }] });
   };
   const deleteItem = (index: number) => {
     const removed = data.items[index];
@@ -1790,25 +2026,46 @@ function HierarchyEditor({
   };
   return (
     <EditorSection
-      title={data.type === "org_chart" ? "People and reporting lines" : "Decision nodes"}
-      description="Edit each node and choose its parent to control the hierarchy."
-      action={<AddButton compact disabled={data.items.length >= 16} label="Add item" onClick={addItem} />}
+      title={
+        data.type === "org_chart"
+          ? t("editorTools.infographic.orgChartTitle")
+          : t("editorTools.infographic.decisionNodesTitle")
+      }
+      description={t("editorTools.infographic.hierarchyDescription")}
+      action={<AddButton compact disabled={data.items.length >= 16} label={t("editorTools.infographic.addItem")} onClick={addItem} />}
     >
       <div className="space-y-3">
         {data.items.map((item, index) => (
           <div key={item.id} className="rounded-xl border border-[#ECECF1] bg-white p-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_220px_auto]">
-              <LabeledField label={data.type === "org_chart" ? "Name" : "Label"}><TextInput ariaLabel={`Item ${index + 1} heading`} value={item.heading} onChange={(heading) => updateItem(index, { heading })} /></LabeledField>
-              <LabeledField label="Parent">
+              <LabeledField label={data.type === "org_chart" ? t("editorTools.infographic.nameLabel") : t("editorTools.infographic.labelLabel")}>
+                <TextInput
+                  ariaLabel={t("editorTools.infographic.itemHeadingAria", {
+                    label: t("editorTools.infographic.item"),
+                    n: index + 1,
+                  })}
+                  value={item.heading}
+                  onChange={(heading) => updateItem(index, { heading })}
+                />
+              </LabeledField>
+              <LabeledField label={t("editorTools.infographic.parentLabel")}>
                 <select className={inputClassName} value={item.parent_id ?? ""} onChange={(event) => updateItem(index, { parent_id: event.target.value || null })}>
-                  <option value="">Top level</option>
+                  <option value="">{t("editorTools.infographic.topLevel")}</option>
                   {data.items.map((candidate) => candidate.id !== item.id ? <option key={candidate.id} value={candidate.id}>{candidate.heading || candidate.id}</option> : null)}
                 </select>
               </LabeledField>
-              <div className="flex justify-end sm:pt-7"><MiniButton label="Delete item" disabled={data.items.length <= 1} onClick={() => deleteItem(index)}><Trash2 size={14} /></MiniButton></div>
+              <div className="flex justify-end sm:pt-7"><MiniButton label={t("editorTools.infographic.deleteItem")} disabled={data.items.length <= 1} onClick={() => deleteItem(index)}><Trash2 size={14} /></MiniButton></div>
             </div>
             {data.type === "org_chart" ? (
-              <LabeledField className="mt-3" label="Role"><TextInput ariaLabel={`Item ${index + 1} role`} value={item.description ?? ""} onChange={(description) => updateItem(index, { description })} /></LabeledField>
+              <LabeledField className="mt-3" label={t("editorTools.infographic.roleLabel")}>
+                <TextInput
+                  ariaLabel={t("editorTools.infographic.itemRoleAria", {
+                    n: index + 1,
+                  })}
+                  value={item.description ?? ""}
+                  onChange={(description) => updateItem(index, { description })}
+                />
+              </LabeledField>
             ) : null}
           </div>
         ))}
@@ -1842,6 +2099,8 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
   showFocus?: boolean;
   showValue?: boolean;
 }) {
+  const t = useT();
+  const label = t(ITEM_LABEL_KEYS[itemLabel] ?? itemLabel);
   const [editingIconIndex, setEditingIconIndex] = useState<number | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(() =>
     items.length > 0 ? 0 : null,
@@ -1904,13 +2163,15 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
   return (
     <>
       <EditorSection
-        title={`${capitalize(itemLabel)}s`}
+        title={t("editorTools.infographic.itemsTitle", {
+          label: capitalize(label),
+        })}
         description={description}
         action={
           <AddButton
             compact
             disabled={maxItems != null && items.length >= maxItems}
-            label={`Add ${itemLabel}`}
+            label={t("editorTools.infographic.addLabel", { label })}
             onClick={addItem}
           />
         }
@@ -1936,7 +2197,12 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                     type="button"
                     aria-controls={accordionPanelId}
                     aria-expanded={isExpanded}
-                    aria-label={`${isExpanded ? "Collapse" : "Expand"} ${itemLabel} ${index + 1}`}
+                    aria-label={t(
+                      isExpanded
+                        ? "editorTools.infographic.collapseLabelAria"
+                        : "editorTools.infographic.expandLabelAria",
+                      { label, n: index + 1 },
+                    )}
                     className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#D8CEFA]"
                     onClick={() =>
                       setExpandedIndex((current) =>
@@ -1949,10 +2215,13 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-[12px] font-medium text-[#191919]">
-                        {capitalize(itemLabel)} {index + 1}
+                        {t("editorTools.infographic.itemTitle", {
+                          label: capitalize(label),
+                          n: index + 1,
+                        })}
                       </span>
                       <span className="mt-0.5 block truncate text-[10px] text-[#8B8B94]">
-                        {item.heading?.trim() || "Untitled"}
+                        {item.heading?.trim() || t("common.untitled")}
                       </span>
                     </span>
                     {isExpanded ? (
@@ -1971,11 +2240,11 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                     <MoveButtons
                       index={index}
                       length={items.length}
-                      label={itemLabel}
+                      label={label}
                       onMove={(direction) => moveItem(index, direction)}
                     />
                     <MiniButton
-                      label={`Delete ${itemLabel}`}
+                      label={t("editorTools.infographic.deleteLabel", { label })}
                       disabled={items.length <= minItems}
                       onClick={() => deleteItem(index)}
                     >
@@ -1994,11 +2263,14 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                     {showIcons ? (
                       <div>
                         <span className="mb-1.5 block text-[11px] font-medium text-[#686873]">
-                          Icon
+                          {t("editorTools.infographic.iconLabel")}
                         </span>
                         <button
                           type="button"
-                          aria-label={`Change ${itemLabel} ${index + 1} icon`}
+                          aria-label={t("editorTools.infographic.changeItemIconAria", {
+                            label,
+                            n: index + 1,
+                          })}
                           className="group flex w-full flex-col items-center gap-2 rounded-lg border border-[#E6E6EA] bg-[#F8F8FA] px-2 py-3 text-[#686873] outline-none transition hover:border-[#B8A3F8] focus-visible:ring-2 focus-visible:ring-[#D8CEFA]"
                           onClick={() => setEditingIconIndex(index)}
                         >
@@ -2009,13 +2281,16 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                             />
                           </span>
                           <span className="text-[10px] font-medium text-[#7C51F8]">
-                            Change icon
+                            {t("editorTools.infographic.changeIcon")}
                           </span>
                         </button>
                         <div className="mt-3">
-                          <LabeledField label="Icon color">
+                          <LabeledField label={t("editorTools.infographic.iconColorLabel")}>
                             <DeferredColorInput
-                              aria-label={`${capitalize(itemLabel)} ${index + 1} icon color`}
+                              aria-label={t("editorTools.infographic.itemIconColorAria", {
+                                label: capitalize(label),
+                                n: index + 1,
+                              })}
                               className="h-8 w-full rounded-lg border border-[#E6E6EA] bg-white p-1"
                               value={icon.color}
                               onCommit={(color) =>
@@ -2042,7 +2317,7 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                     <div className="min-w-0">
                       {showValue ? (
                         <NumberInput
-                          label="Percentage"
+                          label={t("editorTools.infographic.percentageLabel")}
                           max={100}
                           min={0}
                           value={
@@ -2063,10 +2338,13 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                       ) : null}
                       <LabeledField
                         className={showValue ? "mt-3" : ""}
-                        label="Heading"
+                        label={t("editorTools.infographic.headingLabel")}
                       >
                         <TextInput
-                          ariaLabel={`${capitalize(itemLabel)} ${index + 1} heading`}
+                          ariaLabel={t("editorTools.infographic.itemHeadingAria", {
+                            label: capitalize(label),
+                            n: index + 1,
+                          })}
                           value={item.heading ?? ""}
                           onChange={(heading) =>
                             onChange(
@@ -2080,9 +2358,15 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                         />
                       </LabeledField>
                       {showDescription ? (
-                        <LabeledField className="mt-3" label="Description">
+                        <LabeledField
+                          className="mt-3"
+                          label={t("editorTools.infographic.descriptionLabel")}
+                        >
                           <textarea
-                            aria-label={`${capitalize(itemLabel)} ${index + 1} description`}
+                            aria-label={t("editorTools.infographic.itemDescriptionAria", {
+                              label: capitalize(label),
+                              n: index + 1,
+                            })}
                             className="min-h-[82px] w-full resize-y rounded-lg border border-[#E6E6EA] bg-white px-3 py-2 text-[12px] leading-5 text-[#191919] outline-none transition focus:border-[#7C51F8]"
                             maxLength={280}
                             value={item.description ?? ""}
@@ -2102,9 +2386,15 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
                         </LabeledField>
                       ) : null}
                       {showFocus ? (
-                        <LabeledField className="mt-3" label="Focus">
+                        <LabeledField
+                          className="mt-3"
+                          label={t("editorTools.infographic.focusLabel")}
+                        >
                           <TextInput
-                            ariaLabel={`${capitalize(itemLabel)} ${index + 1} focus`}
+                            ariaLabel={t("editorTools.infographic.itemFocusAria", {
+                              label: capitalize(label),
+                              n: index + 1,
+                            })}
                             value={item.focus ?? ""}
                             onChange={(focus) =>
                               onChange(
@@ -2134,7 +2424,10 @@ function ItemCollectionEditor<T extends TimelineInfographicItem>({
           }
           icon_prompt={[
             editingItem.heading?.trim() ||
-              `${capitalize(itemLabel)} ${editingIconIndex + 1}`,
+              t("editorTools.infographic.itemTitle", {
+                label: capitalize(label),
+                n: editingIconIndex + 1,
+              }),
           ]}
           onClose={() => setEditingIconIndex(null)}
           onIconChange={(url) => {
@@ -2354,17 +2647,18 @@ function MoveButtons({
   length: number;
   onMove: (direction: -1 | 1) => void;
 }) {
+  const t = useT();
   return (
     <>
       <MiniButton
-        label={`Move ${label} up`}
+        label={t("editorTools.infographic.moveUp", { label })}
         disabled={index === 0}
         onClick={() => onMove(-1)}
       >
         <ChevronUp size={14} />
       </MiniButton>
       <MiniButton
-        label={`Move ${label} down`}
+        label={t("editorTools.infographic.moveDown", { label })}
         disabled={index === length - 1}
         onClick={() => onMove(1)}
       >

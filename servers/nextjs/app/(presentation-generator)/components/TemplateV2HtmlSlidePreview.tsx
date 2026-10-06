@@ -12,6 +12,7 @@ import {
   TEMPLATE_V2_HTML_WIDTH,
   templateV2UiToHtmlFragment,
 } from "@/lib/template-v2-json-to-html";
+import { useT } from "@/lib/i18n";
 
 type PresentonChartGlobalState = {
   status: "pending" | "ready" | "error";
@@ -237,6 +238,7 @@ export function TemplateV2HtmlSlidePreview({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const t = useT();
 
 
   const html = useMemo(() => {
@@ -409,7 +411,7 @@ export function TemplateV2HtmlSlidePreview({
             : undefined
         }
       >
-        Preview unavailable
+        {t("customTemplate.previewUnavailable")}
       </div>
     );
   }
@@ -451,7 +453,7 @@ export function TemplateV2HtmlSlidePreview({
       >
         <div
           ref={contentRef}
-          aria-label="Template v2 slide preview"
+          aria-label={t("editor.templateV2PreviewAria")}
           data-tailwind-runtime-scope
           className={`block h-full w-full bg-white ${contentClassName}`}
           style={{ pointerEvents: "none" }}

@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { LLMConfig } from "@/types/llm_config";
 import { WEB_SEARCH_PROVIDERS } from "@/utils/providerConstants";
 import { MixpanelEvent, trackEvent } from "@/utils/mixpanel";
+import { useT } from "@/lib/i18n";
 
 const EXTERNAL_WEB_SEARCH_OPTIONS = [
   "exa",
@@ -39,6 +40,7 @@ const WebSearchProvider = ({
 }) => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [openProviderSelect, setOpenProviderSelect] = useState(false);
+  const t = useT();
   const isWebSearchEnabled = !!llmConfig.WEB_GROUNDING;
 
   const update = useCallback(
@@ -91,7 +93,7 @@ const WebSearchProvider = ({
               });
               setWebSearchEnabled(checked);
             }}
-            aria-label="Enable web search"
+            aria-label={t("settings.web.enableSearch")}
           />
         </div>
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:gap-10">
@@ -100,16 +102,16 @@ const WebSearchProvider = ({
               <Search className="h-7 w-7 text-[#5146E5]" />
             </div>
             <h3 className="py-2.5 text-xl font-normal text-[#191919]">
-              Web Search Settings
+              {t("settings.web.title")}
             </h3>
             <p className="text-sm text-gray-500">
-              Choose a provider to enable web search, or leave it disabled.
+              {t("settings.web.subtitle")}
             </p>
           </div>
           {isWebSearchEnabled && <div className="w-full max-w-[720px] space-y-4">
                 <div className="ml-auto w-[222px]">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Provider
+                    {t("settings.web.providerLabel")}
                   </label>
                   <div className="w-full">
                     <Popover open={openProviderSelect} onOpenChange={setOpenProviderSelect}>
@@ -123,16 +125,16 @@ const WebSearchProvider = ({
                           <span className="truncate text-sm font-medium text-gray-900">
                             {selected
                               ? WEB_SEARCH_PROVIDERS[selected]?.label || selected
-                              : "Select web search provider"}
+                              : t("settings.web.selectPlaceholder")}
                           </span>
                           <ChevronUp className="h-4 w-4 text-gray-500" />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-0" align="start" style={{ width: "320px" }}>
                         <Command>
-                          <CommandInput placeholder="Search provider..." />
+                          <CommandInput placeholder={t("settings.web.searchPlaceholder")} />
                           <CommandList>
-                            <CommandEmpty>No provider found.</CommandEmpty>
+                            <CommandEmpty>{t("settings.web.noProviderFound")}</CommandEmpty>
                             <CommandGroup>
                               {WEB_SEARCH_PROVIDER_OPTIONS.map((option) => (
                                 <CommandItem
@@ -160,7 +162,7 @@ const WebSearchProvider = ({
                                       {option.label}
                                     </span>
                                     <span className="text-xs leading-relaxed text-gray-600">
-                                      {option.description}
+                                      {t(option.description)}
                                     </span>
                                   </div>
                                 </CommandItem>
@@ -175,8 +177,7 @@ const WebSearchProvider = ({
 
                 {selected === "auto" && (
                   <div className="rounded-lg border border-[#D9D6FE] bg-[#F4F3FF] p-3 text-xs text-[#5146E5]">
-                    Model-native web grounding is preferred when available.
-                    Otherwise, external search fallback is used.
+                    {t("settings.web.autoHint")}
                   </div>
                 )}
 
@@ -188,7 +189,7 @@ const WebSearchProvider = ({
                     <input
                       type="url"
                       className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm text-[#191919] outline-none transition-colors focus:border-blue-500"
-                      placeholder="https://search.example.com"
+                      placeholder={t("settings.web.urlPlaceholder")}
                       value={getValue(provider.urlField)}
                       onChange={(event) =>
                         update(
@@ -221,7 +222,7 @@ const WebSearchProvider = ({
                         type="button"
                         className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-lg text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
                         onClick={() => setShowApiKey((value) => !value)}
-                        aria-label={showApiKey ? "Hide API key" : "Show API key"}
+                        aria-label={showApiKey ? t("settings.image.hideApiKey") : t("settings.image.showApiKey")}
                         aria-pressed={showApiKey}
                       >
                         {showApiKey ? (
@@ -237,7 +238,7 @@ const WebSearchProvider = ({
                 {selected && selected !== "auto" && (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-[#4C5554]">
-                      Maximum results
+                      {t("settings.web.maxResults")}
                     </label>
                     <input
                       type="number"

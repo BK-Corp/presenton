@@ -9,6 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { notify } from "@/components/ui/sonner";
+import { useT } from "@/lib/i18n";
 import {
   DashboardApi,
   type PresentationResponse,
@@ -42,6 +43,7 @@ export function LegacyPresentationsTable({
   presentations,
   onPresentationsDeleted,
 }: LegacyPresentationsTableProps) {
+  const t = useT();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -64,14 +66,19 @@ export function LegacyPresentationsTable({
     if (deletedIds.length > 0) {
       onPresentationsDeleted(deletedIds);
       notify.success(
-        "Legacy presentations deleted",
-        `${deletedIds.length} presentation${deletedIds.length === 1 ? " was" : "s were"} removed.`
+        t("dashboard.legacy.deletedTitle"),
+        t(
+          deletedIds.length === 1
+            ? "dashboard.legacy.deletedMessageOne"
+            : "dashboard.legacy.deletedMessageMany",
+          { count: deletedIds.length }
+        )
       );
     }
     if (deletedIds.length !== presentations.length) {
       notify.error(
-        "Some presentations could not be deleted",
-        "Please try again."
+        t("dashboard.legacy.deleteSomeFailedTitle"),
+        t("dashboard.legacy.deleteSomeFailedMessage")
       );
     }
     setIsDeleting(false);
@@ -85,15 +92,15 @@ export function LegacyPresentationsTable({
           id="legacy-presentations-heading"
           className="font-syne text-base font-medium text-[#191919]"
         >
-          Legacy Presentation
+          {t("dashboard.legacy.title")}
         </h2>
         <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setShowDeleteDialog(true)}
             disabled={isDeleting}
-            aria-label="Delete all legacy presentations"
-            title="Delete all legacy presentations"
+            aria-label={t("dashboard.legacy.deleteAllAria")}
+            title={t("dashboard.legacy.deleteAllAria")}
             className="flex h-[35px] min-w-[51px] items-center justify-center rounded-full border border-[#EDEEEF] bg-white px-3 text-[#191919] transition-colors hover:bg-[#F6F6F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isDeleting ? (
@@ -112,15 +119,14 @@ export function LegacyPresentationsTable({
           aria-hidden="true"
         />
         <p className="text-[#4C4C4C]">
-          These presentations were created in an older format and can&apos;t be
-          opened in Presenton 0.9.2-beta. {" "}
+          {t("dashboard.legacy.notice", { version: "Presenton 0.9.2-beta" })}{" "}
           <a
             href={LEGACY_RELEASE_URL}
             target="_blank"
             rel="noreferrer"
             className="text-[#C4320A] underline decoration-[#C4320A] underline-offset-2"
           >
-            Download Presenton v0.8.10-beta to access them
+            {t("dashboard.legacy.downloadLink")}
           </a>
           .
         </p>
@@ -129,9 +135,9 @@ export function LegacyPresentationsTable({
       <div className="w-full overflow-x-auto border-t border-[#EDEEEF]">
         <div className="min-w-[760px]">
           <div className="grid min-h-[56px] grid-cols-[minmax(280px,1fr)_272px_272px] border-b border-[#EDEEEF] text-sm font-semibold tracking-[0.14px] text-[#333333]">
-            <div className="flex items-center px-[14px]">Name</div>
-            <div className="flex items-center px-[14px]">Created on</div>
-            <div className="flex items-center px-[14px]">Format</div>
+            <div className="flex items-center px-[14px]">{t("dashboard.legacy.colName")}</div>
+            <div className="flex items-center px-[14px]">{t("dashboard.legacy.colCreatedOn")}</div>
+            <div className="flex items-center px-[14px]">{t("dashboard.legacy.colFormat")}</div>
           </div>
           {presentations.map((presentation) => (
             <div
@@ -139,7 +145,7 @@ export function LegacyPresentationsTable({
               className="grid h-[50px] grid-cols-[minmax(280px,1fr)_272px_272px] border-b border-[#EDEEEF] text-sm text-[#333333]"
             >
               <div className="flex min-w-0 items-center px-4 font-syne font-medium">
-                <span className="truncate">{presentation.title || "Untitled presentation"}</span>
+                <span className="truncate">{presentation.title || t("dashboard.legacy.untitled")}</span>
               </div>
               <div className="flex items-center px-4 font-medium">
                 {formatLegacyDate(presentation.created_at)}
@@ -147,7 +153,7 @@ export function LegacyPresentationsTable({
               <div className="flex items-center px-4">
                 <span className="flex items-center gap-1.5 text-xs font-medium text-[#C4320A]">
                   <LockKeyhole className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
-                  Not Accessible
+                  {t("dashboard.legacy.notAccessible")}
                 </span>
               </div>
             </div>
@@ -174,15 +180,18 @@ export function LegacyPresentationsTable({
               id="delete-legacy-title"
               className="font-syne text-[24px] font-medium leading-[30px] tracking-[-0.02em] text-[#191919]"
             >
-              Delete legacy presentations?
+              {t("dashboard.legacy.deleteTitle")}
             </DialogTitle>
             <DialogDescription
               id="delete-legacy-description"
               className="max-w-[296px] pt-1 text-[15px] leading-6 text-[#667085]"
             >
-              This will permanently delete all {presentations.length} legacy
-              presentation{presentations.length === 1 ? "" : "s"}. This action
-              cannot be undone.
+              {t(
+                presentations.length === 1
+                  ? "dashboard.legacy.deleteDescriptionOne"
+                  : "dashboard.legacy.deleteDescriptionMany",
+                { count: presentations.length }
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-row border-t border-[#EAECF0] p-0 sm:space-x-0">
@@ -192,7 +201,7 @@ export function LegacyPresentationsTable({
               disabled={isDeleting}
               className="h-[56px] flex-1 rounded-none rounded-bl-[24px] px-4 text-sm font-medium text-[#344054] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel
+              {t("dashboard.legacy.cancel")}
             </button>
             <button
               type="button"
@@ -206,10 +215,10 @@ export function LegacyPresentationsTable({
                     className="h-4 w-4 animate-spin"
                     aria-hidden="true"
                   />
-                  Deleting...
+                  {t("dashboard.legacy.deleting")}
                 </>
               ) : (
-                "Delete"
+                t("dashboard.legacy.delete")
               )}
             </button>
           </DialogFooter>

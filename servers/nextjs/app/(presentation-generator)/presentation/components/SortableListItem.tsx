@@ -2,6 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Slide } from '../../types/slide';
 import { useRef } from 'react';
+import { useT } from '@/lib/i18n';
 
 interface SortableListItemProps {
     slide: Slide;
@@ -12,6 +13,7 @@ interface SortableListItemProps {
 
 export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: SortableListItemProps) {
     const lastClickTime = useRef(0);
+    const t = useT();
 
     const {
         attributes,
@@ -56,7 +58,7 @@ export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: 
                     : 'hover:slide-box/40 border-gray-300'
                 }`}
         >
-            <span className="font-medium slide-title">Slide {index + 1}</span>
+            <span className="font-medium slide-title">{t("presentation.sortItem.slideLabel", { n: index + 1 })}</span>
           
         </div>
     );

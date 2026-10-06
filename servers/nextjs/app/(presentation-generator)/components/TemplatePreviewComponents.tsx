@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { memo } from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export function TemplatePreviewStage({
   children,
@@ -34,6 +35,7 @@ export const LayoutsBadge = memo(function LayoutsBadge({
   count: number;
   selectionPage?: boolean;
 }) {
+    const t = useT();
     return (
       <span
         className={cn(
@@ -43,7 +45,7 @@ export const LayoutsBadge = memo(function LayoutsBadge({
             : "left-4 top-3.5 bg-[#333333] px-3 py-1 font-semibold"
         )}
       >
-        Layouts-{count}
+        {t("editor.templateList.layouts", { count })}
       </span>
     );
 });

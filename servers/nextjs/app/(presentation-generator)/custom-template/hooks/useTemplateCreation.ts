@@ -14,6 +14,7 @@ import {
 import { getApiUrl } from "@/utils/api";
 import { MixpanelEvent, trackEvent } from "@/utils/mixpanel";
 import { bucketFileSize, sanitizeAnalyticsError } from "@/utils/analytics";
+import { useT } from "@/lib/i18n";
 
 const TEMPLATE_V2_LAYOUT_BATCH_SIZE = 1;
 const MAX_PROCESSING_PROGRESS_PERCENT = 95;
@@ -117,6 +118,7 @@ export const useTemplateCreation = () => {
     const [uploadedFonts, setUploadedFonts] = useState<UploadedFont[]>([]);
     const [slides, setSlides] = useState<ProcessedSlide[]>([]);
     const templateMetadataRef = useRef<TemplateCreationMetadata | null>(null);
+    const t = useT();
 
     // Helper to update state partially
     const updateState = useCallback((updates: Partial<TemplateCreationState>) => {
@@ -155,7 +157,7 @@ export const useTemplateCreation = () => {
 
             const data = await ApiResponseHandler.handleResponse(
                 response,
-                "Failed to check fonts in the presentation"
+                t("customTemplate.hooks.checkFontsFailed")
             );
 
             updateState({
@@ -172,7 +174,7 @@ export const useTemplateCreation = () => {
 
             return data;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Font check failed";
+            const errorMessage = error instanceof Error ? error.message : t("customTemplate.hooks.fontCheckFailed");
             updateState({ error: errorMessage, isLoading: false });
             trackEvent(MixpanelEvent.CustomTemplate_Font_Check_Failed, {
                 file_size_bucket: bucketFileSize(pptxFile.size),
@@ -181,17 +183,17 @@ export const useTemplateCreation = () => {
                     : "",
                 error_message: sanitizeAnalyticsError(error, "Font check failed"),
             });
-            notify.error("Font check failed", errorMessage);
+            notify.error(t("customTemplate.hooks.fontCheckFailed"), errorMessage);
             return null;
         }
-    }, [updateState]);
+    }, [updateState, t]);
 
 
     const uploadFont = useCallback((fontName: string, file: File): string | null => {
         // Check if font is already added
         const existingFont = uploadedFonts.find((f) => f.fontName === fontName);
         if (existingFont) {
-            notify.warning("Font already added", `Font "${fontName}" is already in your upload list.`);
+            notify.warning(t("customTemplate.hooks.fontExistsTitle"), t("customTemplate.hooks.fontExistsMessage", { name: fontName }));
             return fontName;
         }
 
@@ -200,14 +202,14 @@ export const useTemplateCreation = () => {
         const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf("."));
 
         if (!validExtensions.includes(fileExtension)) {
-            notify.error("Invalid font file", "Please upload .ttf, .otf, .woff, .woff2, or .eot files.");
+            notify.error(t("customTemplate.hooks.invalidFontTitle"), t("customTemplate.hooks.invalidFontMessage"));
             return null;
         }
 
         // Validate file size (10MB limit)
         const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
-            notify.error("File too large", "Font file size must be less than 10MB.");
+            notify.error(t("customTemplate.hooks.fontTooLargeTitle"), t("customTemplate.hooks.fontTooLargeMessage"));
             return null;
         }
 
@@ -220,15 +222,15 @@ export const useTemplateCreation = () => {
         };
 
         setUploadedFonts(prev => [...prev, newFont]);
-        notify.success("Font added", `Font "${fontName}" was added successfully.`);
+        notify.success(t("customTemplate.hooks.fontAddedTitle"), t("customTemplate.hooks.fontAddedMessage", { name: fontName }));
         return fontName;
-    }, [uploadedFonts]);
+    }, [uploadedFonts, t]);
 
     // Remove a font
     const removeFont = useCallback((fontName: string) => {
         setUploadedFonts(prev => prev.filter(font => font.fontName !== fontName));
-        notify.info("Font removed", "The font was removed from your upload list.");
-    }, []);
+        notify.info(t("customTemplate.hooks.fontRemovedTitle"), t("customTemplate.hooks.fontRemovedMessage"));
+    }, [t]);
 
     // Get all unsupported fonts that need upload
     const getUnsupportedFonts = useCallback((): string[] => {
@@ -298,7 +300,7 @@ export const useTemplateCreation = () => {
 
             const data = await ApiResponseHandler.handleResponse(
                 response,
-                "Failed to upload fonts and preview slides"
+                t("customTemplate.hooks.previewFailed")
             );
 
             updateState({
@@ -313,10 +315,10 @@ export const useTemplateCreation = () => {
                 duration_ms: Date.now() - startedAt,
             });
 
-            notify.success("Document prepared", "Template generation is starting now.");
+            notify.success(t("customTemplate.hooks.docPreparedTitle"), t("customTemplate.hooks.docPreparedMessage"));
             return data;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Document preparation failed";
+            const errorMessage = error instanceof Error ? error.message : t("customTemplate.hooks.docPrepareFailedTitle");
             updateState({ error: errorMessage, isLoading: false });
             trackEvent(MixpanelEvent.CustomTemplate_Preview_Failed, {
                 uploaded_font_count: uploadedFonts.length,
@@ -326,10 +328,10 @@ export const useTemplateCreation = () => {
                     "Document preparation failed"
                 ),
             });
-            notify.error("Document preparation failed", errorMessage);
+            notify.error(t("customTemplate.hooks.docPrepareFailedTitle"), errorMessage);
             return null;
         }
-    }, [getUnsupportedFonts, uploadedFonts, updateState]);
+    }, [getUnsupportedFonts, uploadedFonts, updateState, t]);
 
     const saveTemplateV2Layouts = useCallback(async (
         templateId: string,
@@ -348,9 +350,9 @@ export const useTemplateCreation = () => {
 
         await ApiResponseHandler.handleResponse(
             response,
-            "Failed to save generated template layouts"
+            t("customTemplate.hooks.saveLayoutsFailed")
         );
-    }, []);
+    }, [t]);
 
     const createTemplateV2Layout = useCallback(async (
         templateId: string,
@@ -367,15 +369,15 @@ export const useTemplateCreation = () => {
 
         const data = await ApiResponseHandler.handleResponse(
             response,
-            `Failed to generate template layout for slide ${index + 1}`
+            t("customTemplate.hooks.layoutFailed", { index: index + 1 })
         );
         const layout = extractCreatedTemplateV2Layouts(data)
             .find((item) => item.index === index);
         if (!layout) {
-            throw new Error("No generated layout was returned for this slide.");
+            throw new Error(t("customTemplate.hooks.noLayoutReturned"));
         }
         return layout;
-    }, []);
+    }, [t]);
 
     const createAndSaveTemplateV2Layouts = useCallback(async (
         templateId: string,
@@ -397,7 +399,7 @@ export const useTemplateCreation = () => {
                     index,
                     error: errorMessageFromUnknown(
                         error,
-                        "Template layout generation failed"
+                        t("customTemplate.hooks.layoutFailedFallback")
                     ),
                 });
             }
@@ -409,7 +411,7 @@ export const useTemplateCreation = () => {
             } catch (error) {
                 const saveError = errorMessageFromUnknown(
                     error,
-                    "Failed to save generated template layouts"
+                    t("customTemplate.hooks.saveLayoutsFailed")
                 );
                 return {
                     layouts: [],
@@ -425,7 +427,7 @@ export const useTemplateCreation = () => {
         }
 
         return { layouts, failures };
-    }, [createTemplateV2Layout, saveTemplateV2Layouts]);
+    }, [createTemplateV2Layout, saveTemplateV2Layouts, t]);
 
     const generateTemplateV2Blocks = useCallback(async (
         templateId: string
@@ -440,9 +442,9 @@ export const useTemplateCreation = () => {
 
         await ApiResponseHandler.handleResponse(
             response,
-            "Failed to generate template blocks"
+            t("customTemplate.hooks.blocksGenFailed")
         );
-    }, []);
+    }, [t]);
 
     const generateTemplateV2 = useCallback(async (
         previewData: FontUploadPreviewResponse,
@@ -497,11 +499,11 @@ export const useTemplateCreation = () => {
 
             const initData = await ApiResponseHandler.handleResponse(
                 initResponse,
-                "Failed to initialize template"
+                t("customTemplate.hooks.initFailed")
             );
             const templateId = readTemplateV2InitId(initData);
             if (!templateId) {
-                throw new Error("Template initialization did not return a template id");
+                throw new Error(t("customTemplate.hooks.templateIdMissing"));
             }
 
             updateState({
@@ -612,7 +614,7 @@ export const useTemplateCreation = () => {
                                 ...slide,
                                 processing: false,
                                 processed: false,
-                                error: "No generated layout was returned for this slide.",
+                                error: t("customTemplate.hooks.noLayoutReturned"),
                             };
                         }
                         return templateV2SlideFromLayout(
@@ -638,7 +640,7 @@ export const useTemplateCreation = () => {
                 } catch (error) {
                     blocksError = errorMessageFromUnknown(
                         error,
-                        "Failed to generate template blocks"
+                        t("customTemplate.hooks.blocksFailed")
                     );
                     trackEvent(MixpanelEvent.CustomTemplate_Blocks_Generation_Failed, {
                         template_id: templateId,
@@ -666,24 +668,24 @@ export const useTemplateCreation = () => {
 
             if (failedCount > 0) {
                 notify.warning(
-                    "Some slides could not be generated",
-                    `${processedCount} of ${generatedSlides.length} slides were generated.`
+                    t("customTemplate.hooks.partialTitle"),
+                    t("customTemplate.hooks.partialMessage", { done: processedCount, total: generatedSlides.length })
                 );
             } else if (blocksError) {
                 notify.warning(
-                    "Template generated",
-                    `Slides were saved, but template blocks were not generated. ${blocksError}`
+                    t("customTemplate.hooks.blocksMissingTitle"),
+                    t("customTemplate.hooks.blocksMissingMessage", { error: blocksError })
                 );
             } else {
                 notify.success(
-                    "Template generated",
-                    "The template was generated and saved successfully."
+                    t("customTemplate.hooks.generatedTitle"),
+                    t("customTemplate.hooks.generatedMessage")
                 );
             }
 
             return templateId;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Template generation failed";
+            const errorMessage = error instanceof Error ? error.message : t("customTemplate.hooks.generationFailedTitle");
             updateState({ error: errorMessage, isLoading: false });
             trackEvent(MixpanelEvent.CustomTemplate_Creation_Failed, {
                 template_id: state.templateId,
@@ -704,7 +706,7 @@ export const useTemplateCreation = () => {
                     error: errorMessage,
                 }))
             );
-            notify.error("Generation failed", errorMessage);
+            notify.error(t("customTemplate.hooks.generationFailedTitle"), errorMessage);
             return null;
         }
     }, [
@@ -712,6 +714,7 @@ export const useTemplateCreation = () => {
         generateTemplateV2Blocks,
         state.templateId,
         updateState,
+        t,
     ]);
 
     // Step 3: Initialize template creation
@@ -721,7 +724,7 @@ export const useTemplateCreation = () => {
     ): Promise<string | null> => {
         const previewData = previewDataOverride ?? state.previewData;
         if (!previewData) {
-            notify.error("No preview data", "Prepare the document before continuing.");
+            notify.error(t("customTemplate.hooks.noPreviewTitle"), t("customTemplate.hooks.noPreviewMessage"));
             return null;
         }
 
@@ -736,12 +739,13 @@ export const useTemplateCreation = () => {
     }, [
         generateTemplateV2,
         state.previewData,
+        t,
     ]);
 
     // Reconstruct a single slide (no auto-advance)
     const retrySlide = useCallback((slideIndex: number) => {
         if (!state.templateId) {
-            notify.error("Template unavailable", "Initialize the template before trying again.");
+            notify.error(t("customTemplate.hooks.unavailableTitle"), t("customTemplate.hooks.unavailableMessage"));
             return;
         }
 
@@ -795,13 +799,13 @@ export const useTemplateCreation = () => {
                     duration_ms: Date.now() - startedAt,
                 });
                 notify.success(
-                    "Slide regenerated",
-                    `Slide ${slideIndex + 1} was regenerated successfully.`
+                    t("customTemplate.hooks.slideRegenTitle"),
+                    t("customTemplate.hooks.slideRegenMessage", { index: slideIndex + 1 })
                 );
             } catch (error) {
                 const errorMessage = error instanceof Error
                     ? error.message
-                    : "Template layout generation failed";
+                    : t("customTemplate.hooks.layoutFailedFallback");
                 setSlides((current) =>
                     current.map((slide, index) =>
                         index === slideIndex
@@ -824,13 +828,14 @@ export const useTemplateCreation = () => {
                         "Template layout generation failed"
                     ),
                 });
-                notify.error(`Slide ${slideIndex + 1} failed`, errorMessage);
+                notify.error(t("customTemplate.hooks.slideFailedTitle", { index: slideIndex + 1 }), errorMessage);
             }
         })();
     }, [
         createAndSaveTemplateV2Layouts,
         state.templateId,
         updateState,
+        t,
     ]);
 
     // Move to font upload step (when font check is done)

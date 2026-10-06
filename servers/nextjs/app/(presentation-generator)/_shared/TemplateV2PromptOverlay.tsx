@@ -8,6 +8,7 @@ import {
   PRESENTON_BLANK_SLIDE_PROMPT_EVENT,
   type BlankSlidePromptEventDetail,
 } from "./blank-slide-prompt-event";
+import { useT } from "@/lib/i18n";
 
 const TEMPLATE_V2_PREVIEW_SCALE = 0.085;
 
@@ -44,6 +45,7 @@ export function TemplateV2PromptOverlay({
   onSubmitPrompt,
 }: TemplateV2PromptOverlayProps) {
   const inputId = useId();
+  const t = useT();
   const [prompt, setPrompt] = useState("");
   const [isPromptVisible, setIsPromptVisible] = useState(true);
   const [isSubmittingLocally, setIsSubmittingLocally] = useState(false);
@@ -103,7 +105,7 @@ export function TemplateV2PromptOverlay({
     <div className="pointer-events-none absolute inset-0 z-20 font-syne">
       <div className="absolute inset-0 bg-white" aria-hidden="true" />
       <div className="absolute left-[76px] top-[76px] text-[44px] font-medium leading-none text-[#191919]/[0.04]">
-        New page
+        {t("editor.promptOverlay.newPage")}
       </div>
       <div
         aria-hidden="true"
@@ -130,7 +132,7 @@ export function TemplateV2PromptOverlay({
       ) : null}
       <form
         aria-busy={submitting}
-        aria-label="Create slide from prompt"
+        aria-label={t("editor.promptOverlay.formLabel")}
         onSubmit={submitPrompt}
         onPointerDown={(event) => event.stopPropagation()}
         style={{ translate: "none" }}
@@ -146,7 +148,7 @@ export function TemplateV2PromptOverlay({
               htmlFor={inputId}
               className="block text-[18px] font-normal leading-[22px] text-[#333333]"
             >
-              Write prompt
+              {t("editor.promptOverlay.writePrompt")}
             </label>
             <input
               id={inputId}
@@ -154,14 +156,14 @@ export function TemplateV2PromptOverlay({
               disabled={submitting}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
-              placeholder="Start with your idea... we'll handle the slides"
+              placeholder={t("editor.promptOverlay.placeholder")}
               className="mt-3 h-8 w-full border-0 bg-transparent p-0 text-[18px] font-normal leading-8 text-[#191919] outline-none placeholder:text-[#9B9BA1] disabled:cursor-wait"
             />
           </div>
         </div>
         <button
           type="submit"
-          aria-label={submitting ? "Creating slide" : "Create slide"}
+          aria-label={submitting ? t("editor.promptOverlay.submittingLabel") : t("editor.promptOverlay.submitLabel")}
           disabled={!prompt.trim() || submitting}
           style={{
             background:

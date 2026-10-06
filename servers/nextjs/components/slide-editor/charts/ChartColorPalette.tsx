@@ -5,6 +5,7 @@ import {
   normalizeChartColor,
 } from "@/components/slide-editor/charts/chart-data";
 import { DeferredColorInput } from "@/components/slide-editor/toolbar/DeferredColorInput";
+import { useT } from "@/lib/i18n";
 
 type ChartColorPaletteCardProps = {
   className?: string;
@@ -29,6 +30,7 @@ export function ChartColorPaletteCard({
   selectedIndex,
   style,
 }: ChartColorPaletteCardProps) {
+  const t = useT();
   const themeColors =
     colors.length > 0
       ? colors.map((color) => normalizeChartColor(color))
@@ -75,12 +77,12 @@ export function ChartColorPaletteCard({
     >
       <div style={styles.header}>
         <div style={styles.headerText}>
-          <div style={styles.title}>Chart colors</div>
+          <div style={styles.title}>{t("editorTools.chart.chartColors")}</div>
         </div>
         {onClose ? (
           <button
             type="button"
-            aria-label="Close color palette"
+            aria-label={t("editorTools.chart.closeColorPalette")}
             style={styles.closeButton}
             onClick={onClose}
           >
@@ -89,12 +91,12 @@ export function ChartColorPaletteCard({
         ) : null}
       </div>
 
-      <div style={styles.heading}>Theme</div>
+      <div style={styles.heading}>{t("editorTools.chart.theme")}</div>
       <div style={styles.themeGrid}>
         {themeColors.map((color, index) => (
           <ColorSwatch
             key={`${color}-${index}`}
-            ariaLabel={`Select theme color ${index + 1}`}
+            ariaLabel={t("editorTools.chart.selectThemeColor", { index: index + 1 })}
             color={color}
             selected={index === activeIndex}
             onClick={() => onSelectIndex(index)}
@@ -103,8 +105,8 @@ export function ChartColorPaletteCard({
         {onAddColor ? (
           <button
             type="button"
-            aria-label="Add chart color"
-            title="Add chart color"
+            aria-label={t("editorTools.chart.addChartColor")}
+            title={t("editorTools.chart.addChartColor")}
             style={styles.addSwatch}
             onClick={onAddColor}
           >
@@ -115,11 +117,11 @@ export function ChartColorPaletteCard({
 
       <div style={styles.divider} />
 
-      <div style={styles.heading}>System colors</div>
+      <div style={styles.heading}>{t("editorTools.chart.systemColors")}</div>
       <div style={styles.systemGrid}>
         <label
-          aria-label="Custom chart color"
-          title="Custom color"
+          aria-label={t("editorTools.chart.customChartColor")}
+          title={t("editorTools.chart.customColor")}
           style={{
             ...styles.swatch,
             ...styles.customSwatch,
@@ -135,7 +137,7 @@ export function ChartColorPaletteCard({
         {CHART_SYSTEM_COLORS.map((color) => (
           <ColorSwatch
             key={color}
-            ariaLabel={`Set chart color #${color}`}
+            ariaLabel={t("editorTools.chart.setChartColor", { color })}
             color={color}
             selected={color === currentColor}
             onClick={() => commitColor(color)}

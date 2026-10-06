@@ -21,6 +21,7 @@ import {
 } from "@/app/(presentation-generator)/components/TemplateV2HtmlSlidePreview";
 import { normalizeBackendAssetUrls } from "@/utils/api";
 import { ensureTailwindBrowserScript } from "@/lib/tailwind-browser";
+import { useT } from "@/lib/i18n";
 import { useSmartChartInjection } from "@/app/(presentation-generator)/components/useSmartChartInjection";
 
 const PDF_PRINT_STYLE = `
@@ -142,6 +143,7 @@ const SmartHtmlPdfSlide = ({
 
 const PresentationPage = ({ presentation_id, exportCookie }: PresentationPageProps) => {
   const pathname = usePathname();
+  const t = useT();
   const [contentLoading, setContentLoading] = useState(true);
   const exportCookieFromHash =
     typeof window !== "undefined"
@@ -196,7 +198,7 @@ const PresentationPage = ({ presentation_id, exportCookie }: PresentationPagePro
       }
     } catch (error) {
       setError(true);
-      notify.error("Failed to load presentation", "The presentation could not be loaded. Please try again.");
+      notify.error(t("presentation.data.loadFailedTitle"), t("presentation.data.loadFailedMessage"));
       console.error("Error fetching user slides:", error);
     } finally {
       setContentLoading(false);
@@ -233,12 +235,12 @@ const PresentationPage = ({ presentation_id, exportCookie }: PresentationPagePro
             role="alert"
           >
             <AlertCircle className="w-16 h-16 mb-4 text-red-500" />
-            <strong className="font-bold text-4xl mb-2">Oops!</strong>
+            <strong className="font-bold text-4xl mb-2">{t("presentation.pdf.oops")}</strong>
             <p className="block text-2xl py-2">
-              We encountered an issue loading your presentation.
+              {t("presentation.pdf.loadIssue")}
             </p>
             <p className="text-lg py-2">
-              Please check your internet connection or try again later.
+              {t("presentation.pdf.retryHint")}
             </p>
             <Button
               className="mt-4 bg-red-500 text-white hover:bg-red-600 focus:ring-4 focus:ring-red-300"
@@ -247,7 +249,7 @@ const PresentationPage = ({ presentation_id, exportCookie }: PresentationPagePro
                 window.location.reload();
               }}
             >
-              Retry
+              {t("common.retry")}
             </Button>
           </div>
         </div>

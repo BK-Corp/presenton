@@ -25,11 +25,13 @@ import {
 import { ImagesApi } from "@/app/(presentation-generator)/services/api/images";
 import { getApiUrl } from "@/utils/api";
 import LogoutButton from "@/components/Auth/LogoutButton";
+import UiLanguageSwitcher from "@/components/UiLanguageSwitcher";
 import AdminPanel from "../admin/AdminPanel";
 import {
   CHATGPT_AUTH_REQUIRED_EVENT,
   requestChatGptReauth,
 } from "@/utils/chatgptAuth";
+import { useT } from "@/lib/i18n";
 
 const STOCK_IMAGE_PROVIDERS = new Set(["pexels", "pixabay"]);
 
@@ -44,6 +46,7 @@ interface ButtonState {
 }
 
 const SettingsPage = () => {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const [selectedProvider, setSelectedProvider] = useState<SettingsSection>("text-provider");
@@ -55,9 +58,20 @@ const SettingsPage = () => {
   const [buttonState, setButtonState] = useState<ButtonState>({
     isLoading: false,
     isDisabled: false,
-    text: "Save Configuration",
+    text: t("settings.saveConfiguration"),
     showProgress: false,
   });
+
+  const saveLabel = t("settings.saveConfiguration");
+  const savingLabel = t("settings.savingConfiguration");
+
+  // Keep the save button label in sync when the UI language changes.
+  useEffect(() => {
+    setButtonState((prev) => ({
+      ...prev,
+      text: prev.isLoading ? savingLabel : saveLabel,
+    }));
+  }, [saveLabel, savingLabel]);
 
   const handleTextProviderInputChange = useCallback(
     (value: string | boolean | number | string[], field: string) => {
@@ -122,9 +136,9 @@ const SettingsPage = () => {
       return true;
     } catch (error: any) {
       notify.error(
-        "Cannot save settings",
+        t("settings.cannotSave"),
         error?.message ||
-        `Unable to reach ${provider} with the provided API key. Please verify your settings and try again.`
+        t("settings.stockUnreachable", { provider })
       );
       return false;
     }
@@ -169,7 +183,7 @@ const SettingsPage = () => {
       const isAuthenticated = await checkCurrentAuthStatus();
       if (!isAuthenticated) {
         requestChatGptReauth({
-          message: "Please sign in to ChatGPT again from Settings.",
+          message: t("settings.chatgptReauthMessage"),
           source: "settings-save",
         });
         return;
@@ -179,8 +193,8 @@ const SettingsPage = () => {
       const isConnected = await checkPresentonAuthStatus();
       if (!isConnected) {
         notify.warning(
-          "Connect Presenton first",
-          "Sign in to Presenton Cloud before selecting it as the text provider."
+          t("settings.connectPresentonFirst"),
+          t("settings.connectPresentonMessage")
         );
         setSelectedProvider("text-provider");
         return;
@@ -191,7 +205,7 @@ const SettingsPage = () => {
     });
     const validationError = getLLMConfigValidationError(llmConfig);
     if (validationError) {
-      notify.warning("Cannot save settings", validationError);
+      notify.warning(t("settings.cannotSave"), validationError);
       if (
         selectedProvider === "image-provider" &&
         ((llmConfig.LLM === "openai" && !String(llmConfig.OPENAI_MODEL || "").trim()) ||
@@ -212,7 +226,7 @@ const SettingsPage = () => {
         ...prev,
         isLoading: true,
         isDisabled: true,
-        text: "Saving Configuration...",
+        text: t("settings.savingConfiguration"),
       }));
       trackEvent(MixpanelEvent.Settings_SaveConfiguration_API_Call);
       if (
@@ -224,31 +238,31 @@ const SettingsPage = () => {
         ))
       ) {
         throw new Error(
-          `The selected model "${llmConfig.OLLAMA_MODEL}" is not available at ${llmConfig.OLLAMA_URL}. Check models and select an available model.`
+          t("settings.ollamaUnavailable", { model: llmConfig.OLLAMA_MODEL ?? "", url: llmConfig.OLLAMA_URL ?? "" })
         );
       }
       await handleSaveLLMConfig(llmConfig);
       notify.success(
-        "Settings saved",
-        "Your configuration was saved successfully."
+        t("settings.settingsSaved"),
+        t("settings.settingsSavedMessage")
       );
       setButtonState((prev) => ({
         ...prev,
         isLoading: false,
         isDisabled: false,
-        text: "Save Configuration",
+        text: t("settings.saveConfiguration"),
       }));
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Something went wrong while saving.";
-      notify.error("Could not save settings", message);
+          : t("settings.saveFailedFallback");
+      notify.error(t("settings.couldNotSave"), message);
       setButtonState((prev) => ({
         ...prev,
         isLoading: false,
         isDisabled: false,
-        text: "Save Configuration",
+        text: t("settings.saveConfiguration"),
       }));
     }
   };
@@ -265,7 +279,7 @@ const SettingsPage = () => {
 
   const textProviderKey = llmConfig.LLM || "";
   const textProviderLabel =
-    LLM_PROVIDERS[textProviderKey]?.label || textProviderKey || "No text provider";
+    LLM_PROVIDERS[textProviderKey]?.label || textProviderKey || t("settings.noTextProvider");
   const selectedTextModel =
     textProviderKey === "presenton"
       ? ""
@@ -307,19 +321,19 @@ const SettingsPage = () => {
     : textProviderLabel;
 
   const imageSummary = textProviderKey === "presenton"
-    ? "Cloud images"
+    ? t("settings.cloudImages")
     : llmConfig.DISABLE_IMAGE_GENERATION
-      ? "Image generation disabled"
+      ? t("settings.imageGenerationDisabled")
       : llmConfig.IMAGE_PROVIDER
         ? IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER]?.label ||
         llmConfig.IMAGE_PROVIDER
-        : "No image provider";
+        : t("settings.noImageProvider");
   const webSearchProviderKey = (llmConfig.WEB_SEARCH_PROVIDER || "").toLowerCase();
   const webSearchSummary = textProviderKey === "presenton"
-    ? "Cloud web search"
+    ? t("settings.cloudWebSearch")
     : llmConfig.WEB_GROUNDING
-      ? `Web: ${WEB_SEARCH_PROVIDERS[webSearchProviderKey]?.label || "No provider"}`
-      : "Web search disabled";
+      ? t("settings.webSummary", { label: WEB_SEARCH_PROVIDERS[webSearchProviderKey]?.label || t("settings.noProvider") })
+      : t("settings.webSearchDisabled");
 
   useEffect(() => {
     if (
@@ -380,10 +394,10 @@ const SettingsPage = () => {
         ) {
 
           notify.warning(
-            "Provider setup required",
+            t("settings.providerSetupRequired"),
             !llmConfig.LLM
-              ? "Choose and configure a text provider before opening other pages."
-              : "Complete the selected text provider configuration and save it before leaving Settings.",
+              ? t("settings.providerSetupChoose")
+              : t("settings.providerSetupComplete"),
             { id: "provider-setup-required" }
           );
           e.preventDefault();
@@ -426,11 +440,14 @@ const SettingsPage = () => {
           <div className="sticky right-0 top-0 z-40 mb-4 bg-white/90 py-[28px] backdrop-blur">
             <div className="flex  gap-3 items-center ">
               <h3 className=" text-[28px] tracking-[-0.84px] font-syne font-normal text-black flex items-center gap-2">
-                Settings
+                {t("settings.title")}
               </h3>
               <p className="text-[10px] px-2.5 py-0.5 rounded-[50px] text-[#7A5AF8] border border-[#EDEEEF]  font-medium ">
                 {textSummary} · {imageSummary} · {webSearchSummary}
               </p>
+              <div className="ml-auto">
+                <UiLanguageSwitcher compact />
+              </div>
             </div>
           </div>
 
@@ -439,9 +456,9 @@ const SettingsPage = () => {
               role="alert"
               className="mb-5 mr-7 rounded-[12px] border border-amber-200 bg-amber-50 px-5 py-4 text-[#713F12]"
             >
-              <p className="text-sm font-semibold">Choose a text provider to continue</p>
+              <p className="text-sm font-semibold">{t("settings.chooseProviderToContinue")}</p>
               <p className="mt-1 text-xs leading-5">
-                Presenton Cloud is disconnected. Select any text provider below and save the configuration before opening another page.
+                {t("settings.presentonDisconnectedMessage")}
               </p>
             </div>
           )}
@@ -457,13 +474,13 @@ const SettingsPage = () => {
           {selectedProvider === "session" && (
             <div className="w-full max-w-lg space-y-5 rounded-[20px] border border-[#EDEEEF] bg-white p-7">
               <div>
-                <h4 className="font-syne text-lg font-normal text-black">Sign out</h4>
+                <h4 className="font-syne text-lg font-normal text-black">{t("settings.signOut")}</h4>
                 <p className="mt-2 font-syne text-sm leading-relaxed text-[#494A4D]">
-                  End your session on this deployment. You will need to sign in again to use the app and access the API.
+                  {t("settings.signOutDescription")}
                 </p>
               </div>
               <LogoutButton
-                label="Sign out"
+                label={t("settings.signOut")}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-[58px] border border-[#EDEEEF] bg-[#7C51F8] px-5 py-3 font-syne text-xs font-semibold text-white transition hover:bg-[#6d46e6] disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>

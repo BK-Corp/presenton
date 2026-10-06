@@ -2,9 +2,11 @@ import { useEffect } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Markdown } from "tiptap-markdown"
+import { useT } from "@/lib/i18n"
 
 
 export default function MarkdownEditor({ content, onChange }: { content: string; onChange: (content: string) => void }) {
+    const t = useT();
     const editor = useEditor({
         extensions: [StarterKit, Markdown],
         content: content,
@@ -35,7 +37,7 @@ export default function MarkdownEditor({ content, onChange }: { content: string;
             <EditorContent
                 className="text-sm sm:text-base outline-none resize-none min-h-[60px] prose prose-sm max-w-none"
                 editor={editor}
-                placeholder="Enter markdown content here..."
+                placeholder={t("editor.markdownPlaceholder")}
             />
         </div>
     );

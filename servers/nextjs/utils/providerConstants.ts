@@ -44,13 +44,13 @@ export const WEB_SEARCH_PROVIDERS: Record<string, WebSearchProviderOption> = {
     value: "auto",
     label: "Default (Model)",
     description:
-      "Use model-native web grounding when available. Otherwise web search stays off until you choose an external provider.",
+      "providerData.web.auto.description",
     icon: "/providers/model-search.svg",
   },
   searxng: {
     value: "searxng",
     label: "SearXNG",
-    description: "Use a self-hosted SearXNG instance.",
+    description: "providerData.web.searxng.description",
     icon: "/providers/searxng.svg",
     urlField: "SEARXNG_BASE_URL",
     urlLabel: "SearXNG base URL",
@@ -58,7 +58,7 @@ export const WEB_SEARCH_PROVIDERS: Record<string, WebSearchProviderOption> = {
   tavily: {
     value: "tavily",
     label: "Tavily",
-    description: "Search API optimized for AI applications.",
+    description: "providerData.web.tavily.description",
     icon: "/providers/tavily.png",
     apiKeyField: "TAVILY_API_KEY",
     apiKeyLabel: "Tavily API key",
@@ -66,7 +66,7 @@ export const WEB_SEARCH_PROVIDERS: Record<string, WebSearchProviderOption> = {
   exa: {
     value: "exa",
     label: "Exa",
-    description: "AI-native web search with extracted result highlights.",
+    description: "providerData.web.exa.description",
     icon: "/providers/exa.png",
     apiKeyField: "EXA_API_KEY",
     apiKeyLabel: "Exa API key",
@@ -74,7 +74,7 @@ export const WEB_SEARCH_PROVIDERS: Record<string, WebSearchProviderOption> = {
   brave: {
     value: "brave",
     label: "Brave",
-    description: "Brave Search API for web search results.",
+    description: "providerData.web.brave.description",
     icon: "/providers/brave.svg",
     apiKeyField: "BRAVE_SEARCH_API_KEY",
     apiKeyLabel: "Brave Search API key",
@@ -92,7 +92,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   pexels: {
     value: "pexels",
     label: "Pexels",
-    description: "Free stock photo and video platform",
+    description: "providerData.image.pexels.description",
     icon: "/providers/pexel.png",
     requiresApiKey: true,
     apiKeyField: "PEXELS_API_KEY",
@@ -102,7 +102,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   pixabay: {
     value: "pixabay",
     label: "Pixabay",
-    description: "Free images and videos",
+    description: "providerData.image.pixabay.description",
     icon: "/providers/pixabay.png",
     requiresApiKey: true,
     apiKeyField: "PIXABAY_API_KEY",
@@ -112,7 +112,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   "gpt-image-2": {
     value: "gpt-image-2",
     label: "GPT Image 2",
-    description: "OpenAI's image generation model",
+    description: "providerData.image.gptImage2.description",
     icon: "/providers/openai.png",
     requiresApiKey: true,
     apiKeyField: "OPENAI_API_KEY",
@@ -122,7 +122,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   "gpt-image-1.5": {
     value: "gpt-image-1.5",
     label: "GPT Image 1.5",
-    description: "OpenAI's image generation model",
+    description: "providerData.image.gptImage15.description",
     icon: "/providers/openai.png",
     requiresApiKey: true,
     apiKeyField: "OPENAI_API_KEY",
@@ -132,7 +132,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   gemini_flash: {
     value: "gemini_flash",
     label: "Gemini Flash",
-    description: "Google's fast image generation model",
+    description: "providerData.image.geminiFlash.description",
     icon: "/providers/gemini-color.svg",
     requiresApiKey: true,
     apiKeyField: "GOOGLE_API_KEY",
@@ -142,7 +142,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   nanobanana_pro: {
     value: "nanobanana_pro",
     label: "NanoBanana Pro",
-    description: "Google's advanced image generation model",
+    description: "providerData.image.nanoBananaPro.description",
     icon: "/providers/gemini-color.svg",
     requiresApiKey: true,
     apiKeyField: "GOOGLE_API_KEY",
@@ -152,7 +152,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   comfyui: {
     value: "comfyui",
     label: "ComfyUI",
-    description: "Use your local ComfyUI server with custom workflows",
+    description: "providerData.image.comfyui.description",
     icon: "/providers/comfyui-color.svg",
     requiresApiKey: false,
     apiKeyField: "COMFYUI_URL",
@@ -161,7 +161,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
   open_webui: {
     value: "open_webui",
     label: "Open WebUI",
-    description: "Use your Open WebUI server for image generation",
+    description: "providerData.image.openWebui.description",
     icon: "/providers/open-webui.png",
     requiresApiKey: false,
     apiKeyField: "OPEN_WEBUI_IMAGE_URL",
@@ -171,7 +171,7 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
     value: "openai_compatible",
     label: "Custom",
     description:
-      "OpenAI-compatible /v1/images endpoint (LiteLLM, Azure, vLLM, etc.)",
+      "providerData.image.openaiCompatible.description",
     icon: "/providers/custom.svg",
     requiresApiKey: false,
     apiKeyField: "OPENAI_COMPAT_IMAGE_BASE_URL",
@@ -183,19 +183,19 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   presenton: {
     value: "presenton",
     label: "Presenton",
-    description: "Generate with your connected Presenton Cloud account",
+    description: "providerData.llm.presenton.description",
     icon: "/providers/presenton.png",
   },
   codex: {
     value: "codex",
     label: "ChatGPT",
-    description: "ChatGPT Plus/Pro via OAuth",
+    description: "providerData.llm.codex.description",
     icon: "/providers/openai.png",
   },
   openai: {
     value: "openai",
     label: "OpenAI",
-    description: "OpenAI's latest text generation model",
+    description: "providerData.llm.openai.description",
     url: "https://api.openai.com/v1",
     icon: "/providers/openai.png",
     getApiKeyUrl: "https://www.google.com/search?q=how+to+get+openai+api+key&ie=UTF-8",
@@ -203,7 +203,7 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   deepseek: {
     value: "deepseek",
     label: "DeepSeek",
-    description: "DeepSeek models via DeepSeek API",
+    description: "providerData.llm.deepseek.description",
     url: "https://api.deepseek.com/v1",
     icon: "/providers/deepseek-color.svg",
     getApiKeyUrl: "https://platform.deepseek.com/api_keys",
@@ -211,7 +211,7 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   google: {
     value: "google",
     label: "Google",
-    description: "Google's primary text generation model",
+    description: "providerData.llm.google.description",
     url: "https://api.google.com/v1",
     icon: "/providers/gemini-color.svg",
     getApiKeyUrl: "https://www.google.com/search?q=how+to+get+google+AI+studio+api+key&sxsrf=ANbL-n5_hUGaEiG9v6k9VxZWyv0mqO0Jew%3A1776339625724",
@@ -219,27 +219,27 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   vertex: {
     value: "vertex",
     label: "Vertex AI",
-    description: "Google Vertex AI models",
+    description: "providerData.llm.vertex.description",
     icon: "/providers/vertexai-color.svg",
     getApiKeyUrl: "https://www.google.com/search?q=how+to+get+vertex+ai+api+key",
   },
   azure: {
     value: "azure",
     label: "Azure OpenAI",
-    description: "Azure-hosted OpenAI deployments",
+    description: "providerData.llm.azure.description",
     icon: "/providers/azure-color.svg",
     getApiKeyUrl: "https://www.google.com/search?q=azure+openai+api+key",
   },
   bedrock: {
     value: "bedrock",
     label: "Amazon Bedrock",
-    description: "AWS Bedrock foundation models",
+    description: "providerData.llm.bedrock.description",
     icon: "/providers/bedrock-color.svg",
   },
   openrouter: {
     value: "openrouter",
     label: "OpenRouter",
-    description: "Many models through OpenRouter’s OpenAI-compatible API",
+    description: "providerData.llm.openrouter.description",
     url: "https://openrouter.ai/api/v1",
     icon: "/providers/openrouter-color.svg",
     getApiKeyUrl: "https://openrouter.ai/keys",
@@ -247,7 +247,7 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   cerebras: {
     value: "cerebras",
     label: "Cerebras",
-    description: "Cerebras Cloud via OpenAI-compatible API",
+    description: "providerData.llm.cerebras.description",
     url: "https://api.cerebras.ai/v1",
     icon: "/providers/cerebras-color.svg",
     getApiKeyUrl: "https://inference-docs.cerebras.ai",
@@ -255,13 +255,13 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   litellm: {
     value: "litellm",
     label: "LiteLLM",
-    description: "OpenAI-compatible LiteLLM proxy or gateway",
+    description: "providerData.llm.litellm.description",
     icon: "/providers/litellm-logo.svg",
   },
   fireworks: {
     value: "fireworks",
     label: "Fireworks",
-    description: "Fireworks AI via OpenAI-compatible API",
+    description: "providerData.llm.fireworks.description",
     url: "https://api.fireworks.ai/inference/v1",
     icon: "/providers/fireworks-color.svg",
     getApiKeyUrl: "https://fireworks.ai/account/api-keys",
@@ -269,7 +269,7 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   together: {
     value: "together",
     label: "Together AI",
-    description: "Together AI via OpenAI-compatible API",
+    description: "providerData.llm.together.description",
     url: "https://api.together.ai/v1",
     icon: "/providers/together-color.svg",
     getApiKeyUrl: "https://api.together.xyz/settings/api-keys",
@@ -277,14 +277,14 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   lmstudio: {
     value: "lmstudio",
     label: "LM Studio",
-    description: "Local LM Studio OpenAI-compatible server",
+    description: "providerData.llm.lmstudio.description",
     url: "http://localhost:1234/v1",
     icon: "/providers/lm-studio.svg",
   },
   anthropic: {
     value: "anthropic",
     label: "Anthropic",
-    description: "Anthropic's Claude models",
+    description: "providerData.llm.anthropic.description",
     url: "https://api.anthropic.com/v1",
     icon: "/providers/claude-color.svg",
     getApiKeyUrl: "https://www.google.com/search?q=how+to+get+anthropic+api+key&sxsrf=ANbL-n7lsueZQ88L56HhqC1ch2PGD0rbNQ%3A1776339632265",
@@ -292,13 +292,13 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
   ollama: {
     value: "ollama",
     label: "Ollama",
-    description: "Ollama's primary text generation model",
+    description: "providerData.llm.ollama.description",
     icon: "/providers/ollama.svg",
   },
   custom: {
     value: "custom",
     label: "Custom",
-    description: "OpenAI-compatible LLM",
+    description: "providerData.llm.custom.description",
     icon: "/providers/custom.svg",
   },
 

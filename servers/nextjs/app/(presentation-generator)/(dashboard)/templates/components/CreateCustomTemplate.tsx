@@ -5,6 +5,7 @@ import { Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 const CreateCustomTemplate = ({
   selectionPage = false,
@@ -13,6 +14,7 @@ const CreateCustomTemplate = ({
   selectionPage?: boolean;
   onClick?: () => void;
 }) => {
+    const t = useT();
     const router = useRouter();
 
     const handleOpenTemplateBuilder = () => {
@@ -96,7 +98,7 @@ const CreateCustomTemplate = ({
                 </div>
                 <div className="flex min-w-0 flex-col gap-1">
                     <h4 className="text-sm font-semibold tracking-[0.14px] text-[#191919]">
-                      {selectionPage ? "Build Templates" : "Build Template"}
+                      {selectionPage ? t("templates.create.buildTemplates") : t("templates.create.buildTemplate")}
                     </h4>
                     <p
                       className={cn(
@@ -107,8 +109,8 @@ const CreateCustomTemplate = ({
                       )}
                     >
                       {selectionPage
-                        ? "Build Your Template"
-                        : "Build Your Own Template"}
+                        ? t("templates.create.buildYour")
+                        : t("templates.create.buildYourOwn")}
                     </p>
                 </div>
             </div>

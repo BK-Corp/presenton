@@ -36,6 +36,7 @@ import {
   FloatingToolbarPanel,
   type FloatingToolbarBox,
 } from "@/components/slide-editor/toolbar/FloatingToolbar";
+import { useT } from "@/lib/i18n";
 
 type TableCellAlignment = NonNullable<TableCell["alignment"]>;
 
@@ -45,6 +46,13 @@ const TABLE_CELL_ALIGNMENTS = [
   "right",
   "justify",
 ] as const satisfies readonly TableCellAlignment[];
+
+const ALIGN_TITLE_KEYS: Record<TableCellAlignment, string> = {
+  left: "editorTools.table.alignLeft",
+  center: "editorTools.table.alignCenter",
+  right: "editorTools.table.alignRight",
+  justify: "editorTools.table.alignJustify",
+};
 
 export function TableToolbarControls({
   element,
@@ -57,6 +65,7 @@ export function TableToolbarControls({
   selectedCell: TableCellSelection | null;
   onChange: (index: number, element: TableSlideElement) => void;
 }) {
+  const t = useT();
   const [tableMenuOpen, setTableMenuOpen] = useState(false);
   const colorInputRef = useRef<HTMLInputElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
@@ -238,8 +247,8 @@ export function TableToolbarControls({
     <div ref={toolbarRef} style={tableControlsStyle}>
       <button
         type="button"
-        aria-label="Cell background color"
-        title="Cell background"
+        aria-label={t("editorTools.table.cellBackgroundColor")}
+        title={t("editorTools.table.cellBackground")}
         style={iconButtonStyle}
         onClick={() => colorInputRef.current?.click()}
       >
@@ -263,8 +272,8 @@ export function TableToolbarControls({
       <Divider />
       <button
         type="button"
-        aria-label="Table alignment"
-        title={`Align ${nextAlignmentLabel(activeCellAlignment)}`}
+        aria-label={t("editorTools.table.tableAlignment")}
+        title={t(ALIGN_TITLE_KEYS[nextAlignmentLabel(activeCellAlignment)])}
         style={iconButtonStyle}
         onClick={cycleActiveCellAlignment}
       >
@@ -273,8 +282,8 @@ export function TableToolbarControls({
       <Divider />
       <button
         type="button"
-        aria-label="Delete row"
-        title="Delete row"
+        aria-label={t("editorTools.table.deleteRow")}
+        title={t("editorTools.table.deleteRow")}
         disabled={!canDeleteRow}
         style={{
           ...iconButtonStyle,
@@ -288,9 +297,9 @@ export function TableToolbarControls({
       <Divider />
       <button
         type="button"
-        aria-label="Table cell actions"
+        aria-label={t("editorTools.table.tableCellActions")}
         aria-expanded={tableMenuOpen}
-        title="Table cell actions"
+        title={t("editorTools.table.tableCellActions")}
         style={{
           ...iconButtonStyle,
           ...(tableMenuOpen ? activeButtonStyle : null),
@@ -389,6 +398,7 @@ function TableToolbarMenu({
   onMoveColumnLeft: () => void;
   onMoveColumnRight: () => void;
 }) {
+  const t = useT();
   if (!menuOpen) return null;
 
   return (
@@ -396,38 +406,38 @@ function TableToolbarMenu({
       <MenuItem
         disabled={!canDeleteRow}
         icon={<Rows3 size={20} strokeWidth={2.2} />}
-        label="Delete Row"
+        label={t("editorTools.table.deleteRow")}
         onClick={onDeleteRow}
       />
       <MenuItem
         disabled={!canDeleteColumn}
         icon={<Columns3 size={20} strokeWidth={2.2} />}
-        label="Delete Column"
+        label={t("editorTools.table.deleteColumn")}
         onClick={onDeleteColumn}
       />
       <MenuItem
         disabled={!canAddRow}
         icon={<Plus size={20} strokeWidth={2.4} />}
-        label="Add Row"
+        label={t("editorTools.table.addRow")}
         onClick={onAddRow}
       />
       <MenuItem
         disabled={!canAddColumn}
         icon={<Plus size={20} strokeWidth={2.4} />}
-        label="Add Column"
+        label={t("editorTools.table.addColumn")}
         onClick={onAddColumn}
       />
       <div style={menuDividerStyle} />
       <MenuItem
         disabled={!canMoveColumnRight}
         icon={<ChevronRight size={20} strokeWidth={2.4} />}
-        label="Move Column Right"
+        label={t("editorTools.table.moveColumnRight")}
         onClick={onMoveColumnRight}
       />
       <MenuItem
         disabled={!canMoveColumnLeft}
         icon={<ChevronLeft size={20} strokeWidth={2.4} />}
-        label="Move Column Left"
+        label={t("editorTools.table.moveColumnLeft")}
         onClick={onMoveColumnLeft}
       />
     </FloatingToolbarPanel>

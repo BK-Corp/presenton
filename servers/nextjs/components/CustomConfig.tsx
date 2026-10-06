@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { notify } from "@/components/ui/sonner";
 import { getApiErrorMessage, getApiUrl } from "@/utils/api";
 import { Switch } from "./ui/switch";
+import { useT } from "@/lib/i18n";
 
 interface CustomConfigProps {
   customLlmUrl: string;
@@ -31,6 +32,7 @@ export default function CustomConfig({
   disableThinking,
   onInputChange,
 }: CustomConfigProps) {
+  const t = useT();
   const [customModels, setCustomModels] = useState<string[]>([]);
   const [customModelsLoading, setCustomModelsLoading] = useState(false);
   const [customModelsChecked, setCustomModelsChecked] = useState(false);
@@ -77,16 +79,16 @@ export default function CustomConfig({
       } else {
         const message = await getApiErrorMessage(
           response,
-          "The server could not list models. Check your API key or endpoint and try again."
+          t("settings.provider.listModelsFailed")
         );
         console.error('Failed to fetch custom models');
         setCustomModels([]);
         setCustomModelsChecked(true);
-        notify.error("Could not load models", message);
+        notify.error(t("settings.provider.loadModelsFailed"), message);
       }
     } catch (error) {
       console.error('Error fetching custom models:', error);
-      notify.error("Could not load models", "The server could not list models. Check your API key or endpoint and try again.");
+      notify.error(t("settings.provider.loadModelsFailed"), t("settings.provider.listModelsFailed"));
       setCustomModels([]);
       setCustomModelsChecked(true);
     } finally {
@@ -99,13 +101,13 @@ export default function CustomConfig({
       {/* URL Input */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          OpenAI Compatible URL
+          {t("providerConfig.custom.urlLabel")}
         </label>
         <div className="relative">
           <input
             type="text"
             required
-            placeholder="Enter your URL"
+            placeholder={t("settings.provider.enterUrl")}
             className="w-full px-4 py-2.5 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
             value={customLlmUrl}
             onChange={(e) => onUrlChange(e.target.value)}
@@ -116,13 +118,13 @@ export default function CustomConfig({
       {/* API Key Input */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          OpenAI Compatible API Key
+          {t("providerConfig.custom.apiKeyLabel")}
         </label>
         <div className="relative">
           <input
             type="text"
             required
-            placeholder="Enter your API Key"
+            placeholder={t("settings.provider.enterApiKeyGeneric")}
             className="w-full px-4 py-2.5 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
             value={customLlmApiKey}
             onChange={(e) => onApiKeyChange(e.target.value)}
@@ -144,10 +146,10 @@ export default function CustomConfig({
             {customModelsLoading ? (
               <div className="flex items-center justify-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Checking for models...
+                {t("settings.provider.checkingModels")}
               </div>
             ) : (
-              "Check for available models"
+              t("settings.provider.checkModels")
             )}
           </button>
         </div>
@@ -157,7 +159,7 @@ export default function CustomConfig({
       {customModelsChecked && customModels.length === 0 && (
         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800">
-            No models found. Please make sure your API key is valid and has access to models.
+            {t("settings.provider.noModelsGeneric")}
           </p>
         </div>
       )}
@@ -167,12 +169,12 @@ export default function CustomConfig({
         <div className="mb-4">
           <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800">
-              <strong>Important:</strong> Only models with structured
-              JSON schema output support will work reliably.
+              <strong>{t("settings.provider.important")}</strong>{" "}
+              {t("settings.provider.jsonSchemaNote")}
             </p>
           </div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Model
+            {t("settings.provider.selectModelGeneric")}
           </label>
           <div className="w-full">
             <Popover
@@ -187,7 +189,7 @@ export default function CustomConfig({
                   className="w-full h-12 px-4 py-4 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors hover:border-gray-400 justify-between"
                 >
                   <span className="text-sm font-medium text-gray-900">
-                    {customModel || "Select a model"}
+                    {customModel || t("settings.provider.selectModel")}
                   </span>
                   <ChevronsUpDown className="w-4 h-4 text-gray-500" />
                 </Button>
@@ -198,9 +200,9 @@ export default function CustomConfig({
                 style={{ width: "var(--radix-popover-trigger-width)" }}
               >
                 <Command>
-                  <CommandInput placeholder="Search model..." />
+                  <CommandInput placeholder={t("settings.provider.searchModel")} />
                   <CommandList>
-                    <CommandEmpty>No model found.</CommandEmpty>
+                    <CommandEmpty>{t("settings.provider.noModelFound")}</CommandEmpty>
                     <CommandGroup>
                       {customModels.map((model, index) => (
                         <CommandItem
@@ -236,7 +238,7 @@ export default function CustomConfig({
       <div>
         <div className="flex items-center justify-between mb-4 bg-green-50 p-2 rounded-sm">
           <label className="text-sm font-medium text-gray-700">
-            Disable Thinking
+            {t("settings.provider.disableThinking")}
           </label>
           <Switch
             checked={disableThinking}
@@ -245,7 +247,7 @@ export default function CustomConfig({
         </div>
         <p className="mt-2 text-sm text-gray-500 flex items-center gap-2">
           <span className="block w-1 h-1 rounded-full bg-gray-400"></span>
-          If enabled, Thinking will be disabled.
+          {t("settings.provider.disableThinkingHint")}
         </p>
       </div>
     </div >

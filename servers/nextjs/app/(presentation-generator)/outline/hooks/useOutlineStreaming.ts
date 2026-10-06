@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "@/components/ui/sonner";
+import { useT } from "@/lib/i18n";
 import { setOutlines } from "@/store/slices/presentationGeneration";
 import { jsonrepair } from "jsonrepair";
 import { RootState } from "@/store/store";
@@ -13,7 +14,6 @@ import {
 
 const MAX_STREAM_RETRIES = 3;
 const STREAM_RETRY_DELAY_MS = 1_000;
-const DEFAULT_STATUS_MESSAGE = "Preparing your presentation outline";
 
 export const useOutlineStreaming = (
   presentationId: string | null,
@@ -27,7 +27,12 @@ export const useOutlineStreaming = (
   const [isLoading, setIsLoading] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number | null>(null);
   const [highestActiveIndex, setHighestActiveIndex] = useState<number>(-1);
-  const [statusMessage, setStatusMessage] = useState(DEFAULT_STATUS_MESSAGE);
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
+  const [statusMessage, setStatusMessage] = useState(() =>
+    t("outline.stream.preparing")
+  );
   const outlinesRef = useRef<{ content: string }[]>(outlines);
   const prevSlidesRef = useRef<{ content: string }[]>([]);
   const activeIndexRef = useRef<number>(-1);
@@ -38,12 +43,17 @@ export const useOutlineStreaming = (
   }, [outlines]);
 
   useEffect(() => {
-    const resetStreamingState = (message = DEFAULT_STATUS_MESSAGE) => {
+    const resetStreamingState = (message?: string) => {
       setIsStreaming(false);
       setIsLoading(false);
       setActiveSlideIndex(null);
       setHighestActiveIndex(-1);
-      setStatusMessage(message);
+      setStatusMessage(message ?? tRef.current("outline.stream.preparing"));
+      setIsStreaming(false);
+      setIsLoading(false);
+      setActiveSlideIndex(null);
+      setHighestActiveIndex(-1);
+      setStatusMessage(message ?? "");
       prevSlidesRef.current = [];
       activeIndexRef.current = -1;
       highestIndexRef.current = -1;
@@ -91,7 +101,7 @@ export const useOutlineStreaming = (
       prevSlidesRef.current = [];
       activeIndexRef.current = -1;
       highestIndexRef.current = -1;
-      setStatusMessage("Reconnecting to outline stream");
+      setStatusMessage(tRef.current("outline.stream.reconnecting"));
 
       retryTimer = setTimeout(() => {
         if (!isClosed) {
@@ -116,8 +126,8 @@ export const useOutlineStreaming = (
           if (!scheduleRetry("invalid SSE payload")) {
             resetStreamingState();
             notify.error(
-              "Stream parse failed",
-              "Failed to parse outline stream response."
+              tRef.current("outline.stream.parseFailedTitle"),
+              tRef.current("outline.stream.parseFailedMessage")
             );
           }
           return;
@@ -182,7 +192,7 @@ export const useOutlineStreaming = (
               setIsLoading(false);
               setActiveSlideIndex(null);
               setHighestActiveIndex(-1);
-              setStatusMessage("Outline ready");
+              setStatusMessage(tRef.current("outline.stream.ready"));
               prevSlidesRef.current = outlinesData;
               activeIndexRef.current = -1;
               highestIndexRef.current = -1;
@@ -193,14 +203,17 @@ export const useOutlineStreaming = (
             } catch {
               if (!scheduleRetry("failed to parse complete payload")) {
                 resetStreamingState();
-                notify.error("Parse failed", "Failed to parse presentation data.");
+                notify.error(
+                  tRef.current("outline.stream.dataFailedTitle"),
+                  tRef.current("outline.stream.dataFailedMessage")
+                );
               }
             }
             accumulatedChunks = "";
             break;
 
           case "closing":
-            resetStreamingState("Outline ready");
+            resetStreamingState(tRef.current("outline.stream.ready"));
             isClosed = true;
             closeEventSource();
             clearRetryTimer();
@@ -221,9 +234,9 @@ export const useOutlineStreaming = (
               resetStreamingState();
               closeEventSource();
               notify.error(
-                "Outline streaming failed",
+                tRef.current("outline.stream.streamFailedTitle"),
                 data.detail ||
-                  "Failed to connect to the server. Please try again."
+                  tRef.current("outline.stream.connectionFailed")
               );
             }
             break;
@@ -235,14 +248,14 @@ export const useOutlineStreaming = (
           resetStreamingState();
           closeEventSource();
           notify.error(
-            "Connection failed",
-            "Failed to connect to the server. Please try again."
+            tRef.current("outline.stream.connectionTitle"),
+            tRef.current("outline.stream.connectionFailed")
           );
         }
       };
     };
 
-    setStatusMessage(DEFAULT_STATUS_MESSAGE);
+    setStatusMessage(tRef.current("outline.stream.preparing"));
     setIsStreaming(true);
     setIsLoading(true);
     openStream();

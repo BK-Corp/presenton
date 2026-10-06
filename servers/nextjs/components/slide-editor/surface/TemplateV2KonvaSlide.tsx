@@ -88,6 +88,7 @@ import {
 
 
 import { updateSlideUi } from "@/store/slices/presentationGeneration";
+import { useT } from "@/lib/i18n";
 import { useNearViewport } from "@/app/hooks/useNearViewport";
 import { resolveBackendAssetSource } from "@/utils/api";
 import { bucketFileSize, sanitizeAnalyticsError } from "@/utils/analytics";
@@ -408,6 +409,7 @@ function TemplateV2KonvaSlideComponent({
     : 1;
   const dispatch = useDispatch();
   const surfaceId = useId();
+  const t = useT();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
   const nodeRefs = useRef(new Map<string, Konva.Node>());
@@ -2666,7 +2668,10 @@ function TemplateV2KonvaSlideComponent({
             error_message: "Invalid image file type",
           }),
         });
-        notify.warning("Invalid file", "Please upload an image file.");
+        notify.warning(
+          t("editor.imageReplace.invalidFileTitle"),
+          t("editor.imageReplace.invalidFileMessage"),
+        );
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
@@ -2676,7 +2681,10 @@ function TemplateV2KonvaSlideComponent({
             error_message: "Image file too large",
           }),
         });
-        notify.warning("File too large", "Image files must be smaller than 5MB.");
+        notify.warning(
+          t("editor.imageReplace.tooLargeTitle"),
+          t("editor.imageReplace.tooLargeMessage"),
+        );
         return;
       }
 
@@ -2684,7 +2692,7 @@ function TemplateV2KonvaSlideComponent({
         setIsUploadingImage(true);
         const uploaded = await ImagesApi.uploadImage(file);
         const imageUrl = resolveBackendAssetSource(uploaded);
-        if (!imageUrl) throw new Error("Upload did not return an image URL.");
+        if (!imageUrl) throw new Error(t("editor.imagePicker.noUrlReturned"));
         updateElement(target, (element) => ({
           ...element,
           data: imageUrl,
@@ -2698,7 +2706,10 @@ function TemplateV2KonvaSlideComponent({
             file_size_bucket: bucketFileSize(file.size),
           }),
         });
-        notify.success("Image updated", "The selected image was replaced.");
+        notify.success(
+          t("editor.imageReplace.updatedTitle"),
+          t("editor.imageReplace.updatedMessage"),
+        );
       } catch (error) {
         trackEvent(MixpanelEvent.Editor_Image_Replace_Failed, {
           ...editorAnalyticsProps({
@@ -2709,17 +2720,17 @@ function TemplateV2KonvaSlideComponent({
           }),
         });
         notify.error(
-          "Upload failed",
+          t("editor.imageReplace.uploadFailedTitle"),
           error instanceof Error
             ? error.message
-            : "Failed to upload image. Please try again.",
+            : t("editor.imageReplace.uploadFailedMessage"),
         );
       } finally {
         pendingImageUploadRef.current = null;
         setIsUploadingImage(false);
       }
     },
-    [editorAnalyticsProps, updateElement],
+    [editorAnalyticsProps, updateElement, t],
   );
 
   const handleElementDoubleClick = useCallback(
@@ -2926,7 +2937,9 @@ function TemplateV2KonvaSlideComponent({
     return (
       <div className="flex h-full aspect-video flex-col items-center justify-center rounded-lg bg-gray-100">
         <Loader2 className="mb-2 h-4 w-4 animate-spin" />
-        <p className="text-center text-sm text-gray-600">Loading slide layout...</p>
+        <p className="text-center text-sm text-gray-600">
+          {t("editorTools.canvas.loadingLayout")}
+        </p>
       </div>
     );
   }

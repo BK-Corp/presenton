@@ -12,31 +12,34 @@ import {
   Strikethrough,
   Code,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 
 interface TiptapTextProps {
   content: string;
- 
+
   onContentChange?: (content: string) => void;
   className?: string;
   placeholder?: string;
- 
+
 }
 
 const TiptapText: React.FC<TiptapTextProps> = ({
   content,
   onContentChange,
   className = "",
-  placeholder = "Enter text...",
+  placeholder,
 }) => {
+  const t = useT();
+  const resolvedPlaceholder = placeholder ?? t("editor.toolbar.enterText");
   const editor = useEditor({
     extensions: [StarterKit, Markdown, Underline],
-    content: content || placeholder,
+    content: content || resolvedPlaceholder,
 
     editorProps: {
       attributes: {
         class: `outline-none focus:outline-none transition-all duration-200 ${className}`,
-        "data-placeholder": placeholder,
+        "data-placeholder": resolvedPlaceholder,
       },
     },
     onBlur: ({ editor }) => {
@@ -64,7 +67,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
  
 
   if (!editor) {
-    return <div className={className}>{content || placeholder}</div>;
+    return <div className={className}>{content || resolvedPlaceholder}</div>;
   }
 
   return (
@@ -85,7 +88,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               editor?.isActive("bold") ? "bg-blue-100 text-blue-600" : ""
             }`}
-            title="Bold"
+            title={t("editor.toolbar.bold")}
           >
             <Bold className="h-4 w-4" />
           </button>
@@ -94,7 +97,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               editor?.isActive("italic") ? "bg-blue-100 text-blue-600" : ""
             }`}
-            title="Italic"
+            title={t("editor.toolbar.italic")}
           >
             <Italic className="h-4 w-4" />
           </button>
@@ -103,7 +106,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               editor?.isActive("underline") ? "bg-blue-100 text-blue-600" : ""
             }`}
-            title="Underline"
+            title={t("editor.toolbar.underline")}
           >
             <UnderlinedIcon className="h-4 w-4" />
           </button>
@@ -112,7 +115,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               editor?.isActive("strike") ? "bg-blue-100 text-blue-600" : ""
             }`}
-            title="Strikethrough"
+            title={t("editor.toolbar.strikethrough")}
           >
             <Strikethrough className="h-4 w-4" />
           </button>
@@ -121,7 +124,7 @@ const TiptapText: React.FC<TiptapTextProps> = ({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               editor?.isActive("code") ? "bg-blue-100 text-blue-600" : ""
             }`}
-            title="Code"
+            title={t("editor.toolbar.code")}
           >
             <Code className="h-4 w-4" />
           </button>

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Pencil, Plus, PlusCircle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { NumberField, Panel } from "@/components/slide-editor/shapes/ShapeToolbar";
 import type { InfographicType } from "@/components/slide-editor/types";
 import {
@@ -54,6 +55,7 @@ export function TemplateV2InfographicToolbarControls({
     infographicType === "progress_bar" || infographicType === "gauge";
   const rawData = readRecord(element.data);
   const itemStats = infographicToolbarItemStats(rawData);
+  const t = useT();
 
   const commitDataChange = (changes: Partial<ToolbarInfographicData>) => {
     const next = { ...rawData, ...data, ...changes };
@@ -82,7 +84,7 @@ export function TemplateV2InfographicToolbarControls({
     <>
       {isMeter ? (
         <InlineNumberInput
-          label="Value"
+          label={t("editorTools.infographic.value")}
           value={value}
           onCommit={(nextValue) => commitDataChange({ value: nextValue })}
         />
@@ -91,24 +93,24 @@ export function TemplateV2InfographicToolbarControls({
       {isMeter ? (
         <div className="relative">
           <ToolbarIconButton
-            title="Range"
+            title={t("editorTools.infographic.range")}
             open={openPanel === "infographic-range"}
             onClick={() => onToggle("infographic-range")}
           >
             <span className="text-[11px] font-semibold leading-none" aria-hidden>
-              Min
+              {t("editorTools.infographic.min")}
             </span>
           </ToolbarIconButton>
           {openPanel === "infographic-range" ? (
             <Panel className="w-[230px] space-y-3 p-3">
               <NumberField
-                label="Min"
+                label={t("editorTools.infographic.min")}
                 value={minValue}
                 step={1}
                 onCommit={(min_value) => commitDataChange({ min_value })}
               />
               <NumberField
-                label="Max"
+                label={t("editorTools.infographic.max")}
                 value={maxValue}
                 step={1}
                 onCommit={(max_value) => commitDataChange({ max_value })}
@@ -133,7 +135,11 @@ export function TemplateV2InfographicToolbarControls({
       ) : null}
 
       {onEdit ? (
-        <ToolbarIconButton title="Edit infographic" open={false} onClick={onEdit}>
+        <ToolbarIconButton
+          title={t("editorTools.infographic.editAria")}
+          open={false}
+          onClick={onEdit}
+        >
           <Pencil size={15} strokeWidth={1.8} aria-hidden />
         </ToolbarIconButton>
       ) : null}
@@ -168,10 +174,11 @@ function InfographicItemsControl({
     onRemove();
     onToggle();
   };
+  const t = useT();
 
   return (
     <div className="relative">
-      <ToolbarIconButton title="Items" open={open} onClick={onToggle}>
+      <ToolbarIconButton title={t("editorTools.layout.items")} open={open} onClick={onToggle}>
         <PlusCircle size={16} strokeWidth={1} aria-hidden />
       </ToolbarIconButton>
       {open ? (
@@ -187,7 +194,7 @@ function InfographicItemsControl({
             )}
           >
             <Plus size={16} strokeWidth={1} aria-hidden />
-            <span>Add Item</span>
+            <span>{t("editorTools.layout.addItem")}</span>
           </button>
           <div className="my-1 h-px bg-[#E7E8EC]" aria-hidden />
           <button
@@ -201,7 +208,7 @@ function InfographicItemsControl({
             )}
           >
             <Trash2 size={16} strokeWidth={1} aria-hidden />
-            <span>Last Item</span>
+            <span>{t("editorTools.layout.removeItem")}</span>
             <span className="ml-auto text-[11px] text-[#8A8D96]">{count}</span>
           </button>
         </Panel>

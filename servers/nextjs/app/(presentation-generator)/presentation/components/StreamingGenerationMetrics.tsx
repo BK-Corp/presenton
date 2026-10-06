@@ -1,6 +1,7 @@
 "use client";
 
 import type { GenerationMetrics } from "@/store/slices/presentationGeneration";
+import { useT } from "@/lib/i18n";
 
 const integerFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
@@ -21,6 +22,7 @@ export default function StreamingGenerationMetrics({
 }: {
   metrics: GenerationMetrics;
 }) {
+  const t = useT();
   const thinkingPending =
     metrics.supports_thinking &&
     metrics.thinking_tokens_estimated &&
@@ -32,8 +34,10 @@ export default function StreamingGenerationMetrics({
       className="hidden h-[38px] shrink-0 items-center rounded-[80px] border border-[#E4E2EB] bg-[#F6F6F9] px-3 font-syne sm:flex"
       title={
         metrics.estimated
-          ? "Live token counts are estimated until the provider reports final usage."
-          : `Final usage from ${metrics.model || "the selected model"}`
+          ? t("presentation.metrics.estimated")
+          : t("presentation.metrics.finalUsage", {
+              model: metrics.model || t("presentation.metrics.defaultModel"),
+            })
       }
     >
       <div className="flex items-center gap-2 text-[11px] font-semibold text-[#555766]">
@@ -44,11 +48,15 @@ export default function StreamingGenerationMetrics({
           }`}
         />
         <span className="whitespace-nowrap">
-          In {formatTokens(metrics.input_tokens, metrics.estimated)}
+          {t("presentation.metrics.tokensIn", {
+            value: formatTokens(metrics.input_tokens, metrics.estimated),
+          })}
         </span>
         <span className="h-3.5 w-px bg-[#D8D8DF]" aria-hidden="true" />
         <span className="whitespace-nowrap">
-          Out {formatTokens(metrics.output_tokens, metrics.estimated)}
+          {t("presentation.metrics.tokensOut", {
+            value: formatTokens(metrics.output_tokens, metrics.estimated),
+          })}
         </span>
         {metrics.supports_thinking ? (
           <>
@@ -59,21 +67,24 @@ export default function StreamingGenerationMetrics({
               }`}
               title={
                 thinkingPending
-                  ? "Reasoning is enabled; waiting for thinking-token usage."
+                  ? t("presentation.metrics.thinkingWaiting")
                   : undefined
               }
             >
-              Think{" "}
-              {formatTokens(
-                metrics.thinking_tokens,
-                metrics.thinking_tokens_estimated
-              )}
+              {t("presentation.metrics.tokensThink", {
+                value: formatTokens(
+                  metrics.thinking_tokens,
+                  metrics.thinking_tokens_estimated,
+                ),
+              })}
             </span>
           </>
         ) : null}
         <span className="h-3.5 w-px bg-[#D8D8DF]" aria-hidden="true" />
         <span className="whitespace-nowrap">
-          {decimalFormatter.format(metrics.tokens_per_second)} t/s
+          {t("presentation.metrics.tokensPerSecond", {
+            value: decimalFormatter.format(metrics.tokens_per_second),
+          })}
         </span>
       </div>
     </div>

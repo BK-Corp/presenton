@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 import { LoadingState } from "../types/index";
 import { ChevronRight } from "lucide-react";
 
@@ -16,6 +17,7 @@ const GenerateButton: React.FC<GenerateButtonProps> = ({
   selectedTemplateId,
   onSubmit,
 }) => {
+  const t = useT();
   const isDisabled =
     loadingState.isLoading ||
     streamState.isLoading ||
@@ -24,9 +26,10 @@ const GenerateButton: React.FC<GenerateButtonProps> = ({
 
   const getButtonText = () => {
     if (loadingState.isLoading) return loadingState.message;
-    if (streamState.isLoading || streamState.isStreaming) return "Loading...";
-    if (!selectedTemplateId) return "Select a Template";
-    return "Continue";
+    if (streamState.isLoading || streamState.isStreaming)
+      return t("outline.generate.loading");
+    if (!selectedTemplateId) return t("outline.generate.selectTemplate");
+    return t("outline.generate.continue");
   };
 
   return (

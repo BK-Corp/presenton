@@ -31,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import GenerationModeDialog from "./GenerationModeDialog";
 import type { GenerationMode } from "@/utils/presentationGenerationMode";
+import { useT } from "@/lib/i18n";
 
 // Types
 interface ConfigurationSelectsProps {
@@ -85,6 +86,7 @@ const SlideCountSelect: React.FC<{
   onOpenChange: (open: boolean) => void;
   compact?: boolean;
 }> = ({ value, onValueChange, open, onOpenChange, compact = false }) => {
+  const t = useT();
   const [customInput, setCustomInput] = useState(
     value && !SLIDE_OPTIONS.includes(value as SlideOption) ? value : "",
   );
@@ -116,7 +118,7 @@ const SlideCountSelect: React.FC<{
     }
   };
 
-  const displayLabel = value ? `${value} slides` : "Auto slides";
+  const displayLabel = value ? t("upload.slidesCount", { value }) : t("upload.autoSlides");
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -176,7 +178,7 @@ const SlideCountSelect: React.FC<{
                   : "text-xs font-medium min-[1800px]:text-sm min-[2200px]:text-base",
               )}
             >
-              {compact && value ? `Slides ${value}` : displayLabel}
+              {compact && value ? t("upload.slidesCount", { value }) : displayLabel}
             </span>
             {compact && (
               <ChevronUp
@@ -230,7 +232,7 @@ const SlideCountSelect: React.FC<{
               className="h-8 w-16 px-2 text-sm min-[1800px]:h-9 min-[1800px]:w-20 min-[1800px]:text-base"
             />
             <span className="text-sm font-medium min-[1800px]:text-base">
-              slides
+              {t("upload.slidesWord")}
             </span>
           </div>
         </div>
@@ -262,7 +264,7 @@ const SlideCountSelect: React.FC<{
                       value === option ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {option} slides
+                  {t("upload.slidesCount", { value: option })}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -282,7 +284,9 @@ const LanguageSelect: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   compact?: boolean;
-}> = ({ value, onValueChange, open, onOpenChange, compact = false }) => (
+}> = ({ value, onValueChange, open, onOpenChange, compact = false }) => {
+  const t = useT();
+  return (
   <Popover open={open} onOpenChange={onOpenChange}>
     <PopoverTrigger asChild>
       <button
@@ -322,7 +326,7 @@ const LanguageSelect: React.FC<{
                 : "text-xs font-medium min-[1800px]:text-sm min-[2200px]:text-base",
             )}
           >
-            {value || "Select language"}
+            {value || t("upload.selectLanguage")}
           </span>
           {compact && (
             <ChevronUp
@@ -344,11 +348,11 @@ const LanguageSelect: React.FC<{
     >
       <Command>
         <CommandInput
-          placeholder="Search language..."
+          placeholder={t("upload.searchLanguage")}
           className="font-manrope"
         />
         <CommandList>
-          <CommandEmpty>No language found.</CommandEmpty>
+          <CommandEmpty>{t("upload.noLanguageFound")}</CommandEmpty>
           <CommandGroup>
             {Object.values(LanguageType).map((language) => (
               <CommandItem
@@ -375,7 +379,8 @@ const LanguageSelect: React.FC<{
       </Command>
     </PopoverContent>
   </Popover>
-);
+  );
+};
 
 export function ConfigurationSelects({
   config,
@@ -384,6 +389,7 @@ export function ConfigurationSelects({
   mode,
   onModeChange,
 }: ConfigurationSelectsProps) {
+  const t = useT();
   const [openSlides, setOpenSlides] = useState(false);
   const [openLanguage, setOpenLanguage] = useState(false);
   const [modeDialogOpen, setModeDialogOpen] = useState(false);
@@ -405,7 +411,7 @@ export function ConfigurationSelects({
             compact ? "h-[34px] shadow-none" : "h-[38px] shadow-sm",
           )}
         >
-          {mode === "standard" ? "Standard" : "Smart"}
+          {mode === "standard" ? t("upload.standard") : t("upload.smart")}
           <ChevronUp className="h-4 w-4" />
         </Button>
       ) : null}

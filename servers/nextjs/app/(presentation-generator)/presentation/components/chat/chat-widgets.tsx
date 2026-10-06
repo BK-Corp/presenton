@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import SmartHtmlSlide from "../../../components/SmartHtmlSlide";
 import { TemplateV2HtmlSlidePreview } from "../../../components/TemplateV2HtmlSlidePreview";
 import { quickPromptGroups } from "./chat-prompts";
@@ -25,23 +26,29 @@ const AssistantSparkleIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
-export const AssistantMarker = () => (
-  <div className="mb-2 flex items-center gap-1.5 text-[#8A8F98]">
-    <AssistantSparkleIcon size={14} />
-    <span className="text-[11px] font-medium leading-4">Assistant</span>
-  </div>
-);
+export const AssistantMarker = () => {
+  const t = useT();
+  return (
+    <div className="mb-2 flex items-center gap-1.5 text-[#8A8F98]">
+      <AssistantSparkleIcon size={14} />
+      <span className="text-[11px] font-medium leading-4">
+        {t("presentation.widgets.assistant")}
+      </span>
+    </div>
+  );
+};
 
 export const ActivityStatusIcon = ({
   activity,
 }: {
   activity: AssistantActivity;
 }) => {
+  const t = useT();
   if (activity.state === "running") {
     return (
       <span
         className="activity-flow-dots relative mt-1 h-[9px] w-[22px] shrink-0"
-        aria-label="Working"
+        aria-label={t("presentation.widgets.working")}
       >
         <span className="absolute left-0 top-[1.5px] h-[6px] w-[6px] rounded-full bg-[#C3C3CB]" />
         <span className="absolute left-[8px] top-[1.5px] h-[6px] w-[6px] rounded-full bg-[#C3C3CB]" />
@@ -57,20 +64,32 @@ export const ActivityStatusIcon = ({
   return <span className="h-2 w-2 shrink-0 rounded-full bg-[#E6E6E6]" />;
 };
 
+const quickPromptGroupLabelKeys: Record<string, string> = {
+  Popular: "presentation.chat.groupPopular",
+  "Add Data": "presentation.chat.groupAddData",
+  "Add Visuals": "presentation.chat.groupAddVisuals",
+  Structure: "presentation.chat.groupStructure",
+  "Refine Content": "presentation.chat.groupRefine",
+};
+
 export const QuickPromptsPanel = ({
   onPromptSelect,
   groups = quickPromptGroups,
 }: {
   onPromptSelect: (prompt: string) => void;
   groups?: typeof quickPromptGroups;
-}) => (
+}) => {
+  const t = useT();
+  return (
   <div className="flex flex-col gap-6 font-syne">
     <AssistantSparkleIcon size={24} />
     <div className="flex flex-col gap-5">
       {groups.map((group) => (
         <div key={group.label} className="flex flex-col gap-2">
           <p className="text-sm font-normal tracking-[0.28px] text-[#333333]">
-            {group.label}
+            {quickPromptGroupLabelKeys[group.label]
+              ? t(quickPromptGroupLabelKeys[group.label])
+              : group.label}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {group.prompts.map((prompt) => (
@@ -88,7 +107,8 @@ export const QuickPromptsPanel = ({
       ))}
     </div>
   </div>
-);
+  );
+};
 
 export const EditComparisonPreview = ({
   preview,
@@ -103,16 +123,17 @@ export const EditComparisonPreview = ({
   isApplying: boolean;
   onSelectVersion: (version: "original" | "modified") => void;
 }) => {
+  const t = useT();
   if (!preview.modifiedSlides?.length) return null;
 
   const cards = [
     {
-      label: "Original",
+      label: t("presentation.widgets.original"),
       slides: preview.originalSlides,
       version: "original" as const,
     },
     {
-      label: "Modified",
+      label: t("presentation.widgets.modified"),
       slides: preview.modifiedSlides,
       version: "modified" as const,
     },
@@ -158,9 +179,14 @@ export const EditComparisonPreview = ({
           height={14}
           className="h-[14px] w-[14px] shrink-0"
         />
-        <span className="font-semibold text-[#191919]">Select edits</span>
+        <span className="font-semibold text-[#191919]">
+          {t("presentation.widgets.selectEdits")}
+        </span>
         <span className="ml-auto text-[11px] font-medium leading-[normal] text-[#7A5AF8]">
-          {preview.changeCount} {preview.changeCount === 1 ? "Change" : "Changes"}
+          {preview.changeCount}{" "}
+          {preview.changeCount === 1
+            ? t("presentation.widgets.changeOne")
+            : t("presentation.widgets.changeMany")}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-[5px]">
@@ -177,7 +203,9 @@ export const EditComparisonPreview = ({
                 : "border-[#EDEEEF]",
             )}
             aria-pressed={selectedVersion === card.version}
-            aria-label={`Restore ${card.label.toLowerCase()} slide state`}
+            aria-label={t("presentation.chat.restoreState", {
+              label: card.label,
+           })}
           >
             <span className="mb-[7px] flex items-center justify-center gap-1 truncate text-center text-[13px] font-medium leading-[normal] text-[#191919]">
               {isApplying && selectedVersion === card.version && (

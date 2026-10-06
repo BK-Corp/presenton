@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { ChartToolbarControls } from "@/components/slide-editor/charts/ChartToolbar";
 import { Panel } from "@/components/slide-editor/shapes/ShapeToolbar";
 import type {
@@ -149,6 +150,7 @@ function GapControl({
   element: TemplateV2LayoutElement;
   onChange: (changes: RawRecord) => void;
 }) {
+  const t = useT();
   const value = readGapValue(element);
   const numericInputOptions = { allowDecimal: true, min: 0 };
   const commit = (nextValue: number) => {
@@ -158,12 +160,12 @@ function GapControl({
 
   return (
     <label className="flex  items-center gap-2.5 px-1 text-[14px] font-medium font-manrope text-[#191919]">
-      <span>Gap</span>
+      <span>{t("editorTools.layout.gap")}</span>
       <span className="flex gap-2  items-center rounded-md bg-white">
         <input
           type="text"
           inputMode={numericInputMode(numericInputOptions)}
-          aria-label="Gap"
+          aria-label={t("editorTools.layout.gap")}
           value={formatGapValue(value)}
           onKeyDown={(event) => {
             if (preventInvalidNumberInput(event, numericInputOptions)) return;
@@ -185,8 +187,8 @@ function GapControl({
         <span className="flex   flex-col items-center justify-center">
           <button
             type="button"
-            title="Increase gap"
-            aria-label="Increase gap"
+            title={t("editorTools.layout.increaseGap")}
+            aria-label={t("editorTools.layout.increaseGap")}
             onClick={() => commit(value + 1)}
             className="grid  place-items-center rounded-sm text-[#05070A] hover:bg-[#F8F8FA]"
           >
@@ -194,8 +196,8 @@ function GapControl({
           </button>
           <button
             type="button"
-            title="Decrease gap"
-            aria-label="Decrease gap"
+            title={t("editorTools.layout.decreaseGap")}
+            aria-label={t("editorTools.layout.decreaseGap")}
             onClick={() => commit(value - 1)}
             className="grid   place-items-center rounded-sm text-[#05070A] hover:bg-[#F8F8FA]"
           >
@@ -213,6 +215,7 @@ function ItemsControl({
   onToggle,
   openPanel,
 }: LayoutControlsProps) {
+  const t = useT();
   const { canAdd, canRemove, children } = layoutItemStats(element);
   const addItem = () => {
     if (!canAdd) return;
@@ -231,8 +234,8 @@ function ItemsControl({
     <div className="relative">
       <button
         type="button"
-        title="Items"
-        aria-label="Items"
+        title={t("editorTools.layout.items")}
+        aria-label={t("editorTools.layout.items")}
         aria-expanded={open}
         onClick={() => onToggle("items")}
         className={cn(
@@ -255,7 +258,7 @@ function ItemsControl({
             )}
           >
             <Plus size={16} strokeWidth={1} aria-hidden />
-            <span>Add Item</span>
+            <span>{t("editorTools.layout.addItem")}</span>
           </button>
           <div className="h-px my-1 bg-[#E7E8EC]" aria-hidden />
           <button
@@ -264,12 +267,12 @@ function ItemsControl({
             onClick={removeItem}
             className={cn(
               "flex  w-full items-center gap-2 px-4 py-2.5 text-left text-[14px] font-medium font-manrope text-[#191919] hover:bg-[#F8F8FA]",
-              !canRemove &&
+              !canAdd &&
               "cursor-not-allowed text-[#A0A3AD] hover:bg-transparent",
             )}
           >
             <Trash2 size={16} strokeWidth={1} aria-hidden />
-            <span>Last Item</span>
+            <span>{t("editorTools.layout.removeItem")}</span>
             <span className="ml-auto text-[11px] text-[#8A8D96]">
               {children.length}
             </span>
@@ -309,6 +312,7 @@ export function TemplateV2LayoutToolbar({
   componentActions,
   ungroupAction: flowUngroupAction,
 }: TemplateV2LayoutToolbarProps) {
+  const t = useT();
   const [openPanel, setOpenPanel] = useState<PanelId>(null);
   const layoutType = element ? normalizedLayoutType(element) : null;
   const hasFlowControls = Boolean(
@@ -361,10 +365,10 @@ export function TemplateV2LayoutToolbar({
           <>
             <div
               className="inline-flex h-7 items-center gap-1 rounded-[6px] px-2 hover:bg-[#F6F6F9] cursor-pointer text-[14px] font-manrope font-medium leading-4 text-[#191919]"
-              title="Ungroup"
+              title={t("editorTools.layout.ungroup")}
               onClick={ungroupAction.onUngroup}
             >
-              <span>Ungroup</span>
+              <span>{t("editorTools.layout.ungroup")}</span>
             </div>
             <ToolbarDivider />
           </>

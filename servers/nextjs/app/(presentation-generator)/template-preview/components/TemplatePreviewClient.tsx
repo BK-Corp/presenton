@@ -82,6 +82,7 @@ import {
   useAnalyticsPageView,
 } from "./editor/templatePreviewAnalytics";
 import { TemplateV2PromptOverlay } from "../../_shared/TemplateV2PromptOverlay";
+import { useT } from "@/lib/i18n";
 
 type GroupLayoutPreviewProps = {
   useKonvaTemplateV2Preview?: boolean;
@@ -147,6 +148,7 @@ const GroupLayoutPreview = ({
   useKonvaTemplateV2Preview = true,
 }: GroupLayoutPreviewProps) => {
   void useKonvaTemplateV2Preview;
+  const t = useT();
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -173,8 +175,8 @@ const GroupLayoutPreview = ({
   const [activePanel, setActivePanel] = useState<PanelMode>("schema");
   const [density, setDensity] = useState<Density>("");
   const [openFieldId, setOpenFieldId] = useState("");
-  const [templateNameDraft, setTemplateNameDraft] = useState("Template");
-  const [savedTemplateName, setSavedTemplateName] = useState("Template");
+  const [templateNameDraft, setTemplateNameDraft] = useState(() => t("editor.previewNotify.defaultTemplateName"));
+  const [savedTemplateName, setSavedTemplateName] = useState(() => t("editor.previewNotify.defaultTemplateName"));
   const [historyCommand, setHistoryCommand] = useState<HistoryCommand | null>(
     null,
   );
@@ -267,10 +269,10 @@ const GroupLayoutPreview = ({
   }, [layouts, templateId]);
 
   useEffect(() => {
-    const nextName = template?.name?.trim() || "Template";
+    const nextName = template?.name?.trim() || t("editor.previewNotify.defaultTemplateName");
     setTemplateNameDraft(nextName);
     setSavedTemplateName(nextName);
-  }, [template?.name, templateId]);
+  }, [t, template?.name, templateId]);
 
   const canEditTemplate = Boolean(template && !template.is_default);
   const activeLayout = editableLayouts[activeLayoutIndex] ?? null;
@@ -327,11 +329,11 @@ const GroupLayoutPreview = ({
         template_id: templateId,
         layout_index: layoutIndex,
       });
-      notify.success("Copied", "Template layout ID copied.");
+      notify.success(t("editor.previewNotify.copied"), t("editor.previewNotify.layoutIdCopied"));
     } catch {
-      notify.error("Copy failed", layoutToken);
+      notify.error(t("editor.previewNotify.copyFailed"), layoutToken);
     }
-  }, [editableLayouts, templateId]);
+  }, [editableLayouts, t, templateId]);
 
   const copyActiveLayoutId = useCallback(async () => {
     await copyLayoutId(activeLayoutIndex);
@@ -343,14 +345,14 @@ const GroupLayoutPreview = ({
       track(ANALYTICS_EVENTS.TEMPLATE_ID_COPIED, {
         template_id: templateId,
       });
-      notify.success("Copied", "Template ID copied.");
+      notify.success(t("editor.previewNotify.copied"), t("editor.previewNotify.templateIdCopied"));
     } catch (copyError) {
       notify.error(
-        "Copy failed",
+        t("editor.previewNotify.copyFailed"),
         copyError instanceof Error ? copyError.message : templateId,
       );
     }
-  }, [templateId]);
+  }, [t, templateId]);
 
   const commitTemplateName = useCallback(async () => {
     if (!templateId || !template) return;
@@ -359,7 +361,7 @@ const GroupLayoutPreview = ({
       return;
     }
 
-    const nextName = templateNameDraft.trim() || "Untitled Template";
+    const nextName = templateNameDraft.trim() || t("editor.previewNotify.untitledTemplate");
     if (nextName !== templateNameDraft) {
       setTemplateNameDraft(nextName);
     }
@@ -369,6 +371,7 @@ const GroupLayoutPreview = ({
   }, [
     canEditTemplate,
     savedTemplateName,
+    t,
     template,
     templateId,
     templateNameDraft,
@@ -418,8 +421,8 @@ const GroupLayoutPreview = ({
     if (!nextDensity || !canEditTemplate || !activeLayout) return;
     if (!hasLayoutContentDensityTargets(activeLayout)) {
       notify.warning(
-        "No variable content",
-        "Add editable text or a repeatable schema array before testing content density.",
+        t("editor.previewNotify.noVariableTitle"),
+        t("editor.previewNotify.noVariableMessage"),
       );
       return;
     }
@@ -435,6 +438,7 @@ const GroupLayoutPreview = ({
     activeLayout,
     activeLayoutIndex,
     canEditTemplate,
+    t,
     templateId,
   ]);
 
@@ -635,8 +639,8 @@ const GroupLayoutPreview = ({
       );
       if (targetIndex < 0) {
         notify.error(
-          "Slide unavailable",
-          "The blank slide is no longer available. Add a new one and try again.",
+          t("editor.previewNotify.slideUnavailableTitle"),
+          t("editor.previewNotify.slideUnavailableMessage"),
         );
         setPromptLayoutId(null);
         return false;
@@ -676,8 +680,8 @@ const GroupLayoutPreview = ({
         setPromptLayoutId(null);
         setHasUnsavedChanges(true);
         notify.success(
-          "Slide created",
-          `Slide ${targetIndex + 1} was generated. Save to keep it.`,
+          t("editor.previewNotify.slideCreatedTitle"),
+          t("editor.previewNotify.slideCreatedMessage", { index: targetIndex + 1 }),
         );
         track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_LAYOUT_RECONSTRUCTED, {
           template_id: templateId,
@@ -688,10 +692,10 @@ const GroupLayoutPreview = ({
         return true;
       } catch (generationError) {
         notify.error(
-          "Failed to create slide",
+          t("editor.previewNotify.createSlideFailedTitle"),
           generationError instanceof Error
             ? generationError.message
-            : "Something went wrong while creating this slide.",
+            : t("editor.previewNotify.createSlideFailedMessage"),
         );
         track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_LAYOUT_RECONSTRUCT_FAILED, {
           template_id: templateId,
@@ -709,6 +713,7 @@ const GroupLayoutPreview = ({
       canEditTemplate,
       isPromptGenerating,
       promptLayoutId,
+      t,
       templateId,
       updateEditableLayouts,
     ],
@@ -750,8 +755,8 @@ const GroupLayoutPreview = ({
     if (!canEditTemplate) return;
     if (editableLayouts.length <= 1) {
       notify.warning(
-        "Cannot delete slide",
-        "A template needs at least one layout.",
+        t("editor.previewNotify.cannotDeleteTitle"),
+        t("editor.previewNotify.cannotDeleteMessage"),
       );
       return;
     }
@@ -776,6 +781,7 @@ const GroupLayoutPreview = ({
     canEditTemplate,
     editableLayouts.length,
     resetContentDensity,
+    t,
     templateId,
     updateEditableLayouts,
   ]);
@@ -806,8 +812,8 @@ const GroupLayoutPreview = ({
 
       updateActiveLayout(normalizeBackendAssetUrls(createdLayout.layout));
       notify.success(
-        "Slide reconstructed",
-        `Slide ${activeLayoutIndex + 1} was reconstructed. Save to keep it.`,
+        t("editor.previewNotify.slideReconstructedTitle"),
+        t("editor.previewNotify.slideReconstructedMessage", { index: activeLayoutIndex + 1 }),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_LAYOUT_RECONSTRUCTED, {
         template_id: templateId,
@@ -816,10 +822,10 @@ const GroupLayoutPreview = ({
       });
     } catch (reconstructError) {
       notify.error(
-        "Failed to reconstruct slide",
+        t("editor.previewNotify.reconstructFailedTitle"),
         reconstructError instanceof Error
           ? reconstructError.message
-          : "Something went wrong while reconstructing this slide.",
+          : t("editor.previewNotify.reconstructFailedMessage"),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_LAYOUT_RECONSTRUCT_FAILED, {
         template_id: templateId,
@@ -836,6 +842,7 @@ const GroupLayoutPreview = ({
     canEditTemplate,
     isReconstructing,
     resetContentDensity,
+    t,
     templateId,
     updateActiveLayout,
   ]);
@@ -849,8 +856,8 @@ const GroupLayoutPreview = ({
       if (!canEditTemplate || !activeLayout || typeof window === "undefined") {
         if (!activeLayout) {
           notify.warning(
-            "Create a layout first",
-            "Add a blank layout before inserting content.",
+            t("editor.previewNotify.createLayoutTitle"),
+            t("editor.previewNotify.createLayoutMessage"),
           );
         }
         return false;
@@ -875,8 +882,8 @@ const GroupLayoutPreview = ({
 
       if (!detail.handled) {
         notify.warning(
-          "Insert unavailable",
-          "Select the active layout and try again.",
+          t("editor.previewNotify.insertUnavailableTitle"),
+          t("editor.previewNotify.insertUnavailableMessage"),
         );
         return false;
       }
@@ -888,6 +895,7 @@ const GroupLayoutPreview = ({
       activeLayoutId,
       activeLayoutIndex,
       canEditTemplate,
+      t,
     ],
   );
 
@@ -1040,7 +1048,7 @@ const GroupLayoutPreview = ({
         });
       }
     },
-    [activeLayoutIndex, insertEditorContent, templateId],
+    [activeLayoutIndex, insertEditorContent, t, templateId],
   );
 
   const saveTemplate = useCallback(async () => {
@@ -1072,7 +1080,7 @@ const GroupLayoutPreview = ({
         had_unsaved_changes: hasUnsavedChanges,
       });
 
-      const nextTemplateName = templateNameDraft.trim() || "Untitled Template";
+      const nextTemplateName = templateNameDraft.trim() || t("editor.previewNotify.untitledTemplate");
       if (nextTemplateName !== templateNameDraft) {
         setTemplateNameDraft(nextTemplateName);
       }
@@ -1089,8 +1097,8 @@ const GroupLayoutPreview = ({
       setHasUnsavedChanges(false);
       setSavedTemplateName(nextTemplateName);
       notify.success(
-        "Changes saved",
-        "Template JSON was updated.",
+        t("editor.previewNotify.savedTitle"),
+        t("editor.previewNotify.savedMessage"),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_TEMPLATE_SAVED, {
         template_id: templateId,
@@ -1099,10 +1107,10 @@ const GroupLayoutPreview = ({
       });
     } catch (saveError) {
       notify.error(
-        "Failed to save template",
+        t("editor.previewNotify.saveFailedTitle"),
         saveError instanceof Error
           ? saveError.message
-          : "Something went wrong while saving the template.",
+          : t("editor.previewNotify.saveFailedMessage"),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_TEMPLATE_SAVE_FAILED, {
         template_id: templateId,
@@ -1116,6 +1124,7 @@ const GroupLayoutPreview = ({
   }, [
     canEditTemplate,
     hasUnsavedChanges,
+    t,
     template,
     templateId,
     templateNameDraft,
@@ -1140,8 +1149,8 @@ const GroupLayoutPreview = ({
       if (result.success) {
         setIsDeleteDialogOpen(false);
         notify.success(
-          "Template deleted",
-          "The template was deleted successfully.",
+          t("editor.previewNotify.deletedTitle"),
+          t("editor.previewNotify.deletedMessage"),
         );
         track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_TEMPLATE_DELETED, {
           template_id: templateId,
@@ -1152,8 +1161,8 @@ const GroupLayoutPreview = ({
       }
 
       notify.error(
-        "Could not delete template",
-        result.message || "Something went wrong while deleting the template.",
+        t("editor.previewNotify.deleteFailedTitle"),
+        result.message || t("editor.previewNotify.deleteFailedMessage"),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_TEMPLATE_DELETE_FAILED, {
         template_id: templateId,
@@ -1162,10 +1171,10 @@ const GroupLayoutPreview = ({
       });
     } catch (deleteError) {
       notify.error(
-        "Could not delete template",
+        t("editor.previewNotify.deleteFailedTitle"),
         deleteError instanceof Error
           ? deleteError.message
-          : "Something went wrong while deleting the template.",
+          : t("editor.previewNotify.deleteFailedMessage"),
       );
       track(ANALYTICS_EVENTS.TEMPLATE_PREVIEW_TEMPLATE_DELETE_FAILED, {
         template_id: templateId,
@@ -1175,7 +1184,7 @@ const GroupLayoutPreview = ({
     } finally {
       setIsDeletingTemplate(false);
     }
-  }, [isDeletingTemplate, router, template?.is_default, templateId]);
+  }, [isDeletingTemplate, router, t, template?.is_default, templateId]);
 
   if (!templateId) {
     return (
@@ -1230,14 +1239,14 @@ const GroupLayoutPreview = ({
             !activeLayout ||
             !activePreviewLayout ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-sm text-[#696969]">
-              <p>No layouts available for this template.</p>
+              <p>{t("editor.previewNotify.noLayouts")}</p>
               {canEditTemplate ? (
                 <button
                   className="rounded-[8px] border border-[#D9D6FE] bg-white px-4 py-2 text-[13px] font-medium text-[#7A5AF8] transition-colors hover:bg-[#F8F6FF]"
                   onClick={createBlankLayout}
                   type="button"
                 >
-                  Create blank layout
+                  {t("editor.previewNotify.createBlank")}
                 </button>
               ) : null}
             </div>
@@ -1359,7 +1368,7 @@ const GroupLayoutPreview = ({
         isDeleting={isDeletingTemplate}
         open={isDeleteDialogOpen}
         templateName={
-          templateNameDraft.trim() || template?.name || "this template"
+          templateNameDraft.trim() || template?.name || t("editor.previewNotify.untitledTemplate")
         }
         onConfirm={confirmDeleteTemplate}
         onOpenChange={setIsDeleteDialogOpen}

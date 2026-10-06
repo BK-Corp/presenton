@@ -7,6 +7,7 @@ import CreateCustomTemplate from "./CreateCustomTemplate";
 import Link from "next/link";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { ensureTailwindBrowserScript } from "@/lib/tailwind-browser";
+import { useT } from "@/lib/i18n";
 import { useTemplateSummaries, TemplateTab } from "../../../hooks/useTemplateSummaries";
 import {
   ProcessingTemplateListCard,
@@ -17,6 +18,7 @@ import {
 } from "../../../components/TemplateListUi";
 
 const LayoutPreview = () => {
+  const t = useT();
   const [tab, setTab] = useState<TemplateTab>("default");
   const router = useRouter();
   const {
@@ -65,17 +67,17 @@ const LayoutPreview = () => {
       setRetryingTaskId(taskId);
       try {
         await retryTemplateTask(taskId);
-        toast.success("Template generation restarted");
+        toast.success(t("templates.panel.retrySuccess"));
       } catch (error) {
-        toast.error("Could not retry template generation", {
+        toast.error(t("templates.panel.retryFailed"), {
           description:
-            error instanceof Error ? error.message : "An unexpected error occurred",
+            error instanceof Error ? error.message : t("templates.panel.retryFailedFallback"),
         });
       } finally {
         setRetryingTaskId(null);
       }
     },
-    [retryTemplateTask]
+    [retryTemplateTask, t]
   );
 
   const activeTemplates = tab === "default" ? defaultTemplates : customTemplates;
@@ -85,22 +87,22 @@ const LayoutPreview = () => {
       <div className="sticky top-0 right-0 z-50 py-[28px] px-6 backdrop-blur">
         <div className="flex xl:flex-row flex-col gap-6 xl:gap-0 items-center justify-between">
           <h3 className="text-[28px] tracking-[-0.84px] font-syne font-normal text-[#101828] flex items-center gap-2">
-            Templates
+            {t("templates.panel.title")}
           </h3>
           <div className="flex gap-2.5 max-sm:w-full max-md:justify-center max-sm:flex-wrap">
             <Link
               href="/custom-template"
               onClick={() => trackEvent(MixpanelEvent.Templates_New_Template_Clicked)}
               className="inline-flex items-center font-syne font-semibold gap-2 rounded-xl px-4 py-2.5 text-black text-sm shadow-sm hover:shadow-md"
-              aria-label="Create new template"
+              aria-label={t("templates.panel.createAria")}
               style={{
                 borderRadius: "48px",
                 background:
                   "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)",
               }}
             >
-              <span className="hidden md:inline">New Template</span>
-              <span className="md:hidden">New</span>
+              <span className="hidden md:inline">{t("templates.panel.newTemplate")}</span>
+              <span className="md:hidden">{t("templates.panel.newShort")}</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -114,7 +116,7 @@ const LayoutPreview = () => {
           {loading ? (
             <TemplateListLoadingState />
           ) : error ? (
-            <TemplateListEmptyState message={`Templates could not be loaded: ${error}`} />
+            <TemplateListEmptyState message={t("templates.panel.loadFailed", { error: error })} />
           ) : tab === "custom" ? (
             <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               <CreateCustomTemplate />
@@ -136,7 +138,7 @@ const LayoutPreview = () => {
               ))}
             </div>
           ) : activeTemplates.length === 0 ? (
-            <TemplateListEmptyState message="No built-in templates available." />
+            <TemplateListEmptyState message={t("templates.panel.noBuiltIn")} />
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {activeTemplates.map((template) => (

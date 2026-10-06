@@ -3,6 +3,7 @@
 import { type ReactNode } from "react";
 import { Circle, Scan, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import {
   ColorField,
   NumberField,
@@ -33,6 +34,15 @@ const ALIGNMENT_MATRIX = [
   { horizontal: "right", vertical: "bottom" },
 ] as const;
 
+const ALIGNMENT_LABEL_KEYS = {
+  left: "editorTools.layout.alignLeft",
+  center: "editorTools.layout.alignCenter",
+  right: "editorTools.layout.alignRight",
+  top: "editorTools.layout.alignTop",
+  middle: "editorTools.layout.alignMiddle",
+  bottom: "editorTools.layout.alignBottom",
+} as const;
+
 function asRecord(value: unknown): RawRecord {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as RawRecord)
@@ -50,12 +60,6 @@ function readString(value: unknown, fallback: string) {
 function readColor(value: unknown, fallback: string) {
   const color = readString(value, fallback);
   return color.startsWith("#") ? color : `#${color}`;
-}
-
-function capitalize(value: string) {
-  return value
-    .replace("flex-", "")
-    .replace(/(^|[-_])\w/g, (part) => part.replace(/[-_]/, "").toUpperCase());
 }
 
 function clampNumber(value: number, min: number, max: number) {
@@ -216,12 +220,13 @@ export function TemplateV2ContainerToolbarControls({
         bottom: value,
       },
     });
+  const t = useT();
 
   return (
     <>
       <div className="relative">
         <ContainerControlButton
-          title="Fill"
+          title={t("editorTools.layout.fill")}
           open={openPanel === "fill"}
           onClick={() => onToggle("fill")}
           className="w-7 px-0"
@@ -235,12 +240,12 @@ export function TemplateV2ContainerToolbarControls({
         {openPanel === "fill" ? (
           <Panel className="flex w-[250px] flex-col items-start gap-[14px] rounded-[12px] border border-[#E8E9EE] p-3 font-manrope text-[12px] font-medium leading-6 text-[#191919] shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
             <ColorField
-              label="Color"
+              label={t("editorTools.layout.color")}
               color={fillColor}
               onCommit={(color) => onChange({ fill: { ...fill, color } })}
             />
             <NumberField
-              label="Opacity"
+              label={t("editorTools.layout.opacity")}
               value={readNumber(fill.opacity, 1)}
               min={0}
               max={1}
@@ -253,7 +258,7 @@ export function TemplateV2ContainerToolbarControls({
 
       <div className="relative">
         <ContainerControlButton
-          title="Stroke"
+          title={t("editorTools.layout.stroke")}
           open={openPanel === "stroke"}
           onClick={() => onToggle("stroke")}
           className="w-7 px-0"
@@ -263,12 +268,12 @@ export function TemplateV2ContainerToolbarControls({
         {openPanel === "stroke" ? (
           <Panel className="flex w-[250px] flex-col items-start gap-[14px] rounded-[12px] border border-[#E8E9EE] p-3 font-manrope text-[12px] font-medium leading-6 text-[#191919] shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
             <ColorField
-              label="Color"
+              label={t("editorTools.layout.color")}
               color={strokeColor}
               onCommit={(color) => onChange({ stroke: { ...stroke, color } })}
             />
             <NumberField
-              label="Width"
+              label={t("editorTools.layout.width")}
               value={readNumber(stroke.width)}
               min={0}
               max={32}
@@ -277,7 +282,7 @@ export function TemplateV2ContainerToolbarControls({
               onCommit={(width) => onChange({ stroke: { ...stroke, width } })}
             />
             <NumberField
-              label="Opacity"
+              label={t("editorTools.layout.opacity")}
               value={readNumber(stroke.opacity, 1)}
               min={0}
               max={1}
@@ -290,7 +295,7 @@ export function TemplateV2ContainerToolbarControls({
 
       <div className="relative">
         <ContainerControlButton
-          title="Corner Radius"
+          title={t("editorTools.layout.cornerRadius")}
           open={openPanel === "radius"}
           onClick={() => onToggle("radius")}
           className="w-7 px-0"
@@ -301,7 +306,7 @@ export function TemplateV2ContainerToolbarControls({
           <Panel className="flex w-[240px] flex-col items-start gap-[14px] rounded-[12px] border border-[#E8E9EE] p-3 font-manrope text-[12px] font-medium leading-6 text-[#191919] shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
             <div className="flex w-full items-center justify-between">
               <span className="font-manrope text-[12px] font-medium leading-6 text-[#191919]">
-                Border Radius
+                {t("editorTools.layout.borderRadius")}
               </span>
               <span
                 aria-hidden
@@ -310,7 +315,7 @@ export function TemplateV2ContainerToolbarControls({
               />
             </div>
             <CompactNumberInput
-              label="Radius"
+              label={t("editorTools.layout.radius")}
               marker="R"
               value={radius}
               min={0}
@@ -349,17 +354,17 @@ export function TemplateV2ContainerToolbarControls({
 
       <div className="relative">
         <ContainerControlButton
-          title="Shadow"
+          title={t("editorTools.layout.shadow")}
           open={openPanel === "shadow"}
           onClick={() => onToggle("shadow")}
           className="px-3"
         >
-          Shadow
+          {t("editorTools.layout.shadow")}
         </ContainerControlButton>
         {openPanel === "shadow" ? (
           <Panel className="flex w-[320px] flex-col items-start gap-[14px] rounded-[12px] border border-[#E8E9EE] p-3 font-manrope text-[12px] font-medium leading-6 text-[#191919] shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
             <CompactNumberInput
-              label="Position"
+              label={t("editorTools.layout.position")}
               marker="X"
               value={readNumber(shadow.offset_x)}
               step={0.5}
@@ -374,7 +379,7 @@ export function TemplateV2ContainerToolbarControls({
               }
             />
             <CompactNumberInput
-              label="Position"
+              label={t("editorTools.layout.position")}
               marker="Y"
               value={readNumber(shadow.offset_y)}
               step={0.5}
@@ -389,7 +394,7 @@ export function TemplateV2ContainerToolbarControls({
               }
             />
             <CompactNumberInput
-              label="Blur"
+              label={t("editorTools.layout.blur")}
               marker="X"
               min={0}
               max={100}
@@ -398,12 +403,12 @@ export function TemplateV2ContainerToolbarControls({
               onCommit={(blur) => onChange({ shadow: { ...shadow, blur } })}
             />
             <ColorField
-              label="Color"
+              label={t("editorTools.layout.color")}
               color={readColor(shadow.color, "#4A6FF3")}
               onCommit={(color) => onChange({ shadow: { ...shadow, color } })}
             />
             <NumberField
-              label="Opacity"
+              label={t("editorTools.layout.opacity")}
               value={clampNumber(readNumber(shadow.opacity, 0.24), 0, 1) * 100}
               min={0}
               max={100}
@@ -424,7 +429,7 @@ export function TemplateV2ContainerToolbarControls({
 
       <div className="relative">
         <ContainerControlButton
-          title="Layout Settings"
+          title={t("editorTools.layout.layoutSettings")}
           open={openPanel === "padding"}
           onClick={() => onToggle("padding")}
           className="w-7 px-0"
@@ -435,7 +440,7 @@ export function TemplateV2ContainerToolbarControls({
           <Panel className="flex w-[320px] flex-col items-start gap-[14px] rounded-[12px] border border-[#E8E9EE] p-3 font-manrope text-[12px] font-medium leading-6 text-[#191919] shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
             <div className="flex items-start justify-between gap-3">
               <span className="pt-1 font-manrope text-[12px] font-medium leading-6 text-[#191919]">
-                Alignment
+                {t("editorTools.layout.alignment")}
               </span>
               <div className="grid grid-cols-3 gap-2 rounded-[10px] border border-[#DDDEE4] bg-[#F8F9FC] p-2">
                 {ALIGNMENT_MATRIX.map((point) => {
@@ -445,7 +450,7 @@ export function TemplateV2ContainerToolbarControls({
                     <button
                       key={`${point.horizontal}-${point.vertical}`}
                       type="button"
-                      aria-label={`${capitalize(point.horizontal)} ${capitalize(point.vertical)}`}
+                      aria-label={`${t(ALIGNMENT_LABEL_KEYS[point.horizontal])} ${t(ALIGNMENT_LABEL_KEYS[point.vertical])}`}
                       aria-pressed={selected}
                       onClick={() =>
                         onChange({
@@ -473,7 +478,7 @@ export function TemplateV2ContainerToolbarControls({
               </div>
             </div>
             <CompactNumberInput
-              label="Position"
+              label={t("editorTools.layout.position")}
               marker="X"
               min={0}
               value={paddingX}
@@ -481,7 +486,7 @@ export function TemplateV2ContainerToolbarControls({
               onCommit={updatePaddingX}
             />
             <CompactNumberInput
-              label="Position"
+              label={t("editorTools.layout.position")}
               marker="Y"
               min={0}
               value={paddingY}

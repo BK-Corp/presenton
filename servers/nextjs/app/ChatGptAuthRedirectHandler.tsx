@@ -8,11 +8,13 @@ import {
   ChatGptAuthRequiredEventDetail,
   logoutChatGptAuth,
 } from "@/utils/chatgptAuth";
+import { useT } from "@/lib/i18n";
 
 export default function ChatGptAuthRedirectHandler() {
   const router = useRouter();
   const pathname = usePathname();
   const handlingRef = useRef(false);
+  const t = useT();
 
   useEffect(() => {
     const handleAuthRequired = async (event: Event) => {
@@ -23,9 +25,9 @@ export default function ChatGptAuthRedirectHandler() {
       handlingRef.current = true;
 
       notify.error(
-        "ChatGPT sign-in required",
+        t("auth.chatgptRequired"),
         detail?.message ||
-          "Your ChatGPT session expired. Please sign in again from Settings.",
+          t("auth.sessionExpired"),
         { id: "chatgpt-auth-required", duration: 8000 }
       );
 

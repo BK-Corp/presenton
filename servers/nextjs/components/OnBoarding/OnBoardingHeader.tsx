@@ -1,7 +1,6 @@
 import React from 'react'
 import { MixpanelEvent, trackEvent } from '@/utils/mixpanel'
-
-const STEPS = ["Text Provider", "Image Provider", "Web Search", "Finish Setup"];
+import { useT } from "@/lib/i18n";
 
 const OnBoardingHeader = ({
     currentStep,
@@ -14,6 +13,8 @@ const OnBoardingHeader = ({
     setStep: (step: number) => void,
     setProviderStep: (step: number) => void,
 }) => {
+    const t = useT();
+    const STEPS = [t("onboarding.steps.text"), t("onboarding.steps.image"), t("onboarding.steps.web"), t("onboarding.steps.finish")];
     const activeStep = currentStep === 3 ? 4 : providerStep;
 
     const goToStep = (target: number) => {

@@ -2,8 +2,10 @@ import { RootState } from '@/store/store';
 import { IMAGE_PROVIDERS, LLM_PROVIDERS, WEB_SEARCH_PROVIDERS } from '@/utils/providerConstants';
 import React from 'react'
 import { useSelector } from 'react-redux';
+import { useT } from '@/lib/i18n';
 
 const CurrentConfig = ({ webSearchEnabled }: { webSearchEnabled: boolean }) => {
+    const t = useT();
     const userConfigState = useSelector((state: RootState) => state.userConfig);
     const llmConfig = userConfigState.llm_config;
     const textProviderKey = llmConfig.LLM || "openai";
@@ -48,14 +50,14 @@ const CurrentConfig = ({ webSearchEnabled }: { webSearchEnabled: boolean }) => {
         : textProviderLabel;
 
     const imageSummary = llmConfig.DISABLE_IMAGE_GENERATION
-        ? "Image generation disabled"
+        ? t("common.imageGenerationDisabled")
         : llmConfig.IMAGE_PROVIDER
             ? IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER]?.label || llmConfig.IMAGE_PROVIDER
-            : "No image provider";
+            : t("common.noImageProvider");
     const webSearchProviderKey = (llmConfig.WEB_SEARCH_PROVIDER || "auto").toLowerCase();
     const webSearchProvider =
         WEB_SEARCH_PROVIDERS[webSearchProviderKey]?.label || webSearchProviderKey;
-    const webSearchSummary = `Web: ${webSearchProvider} (${webSearchEnabled ? "On" : "Off"})`;
+    const webSearchSummary = `Web: ${webSearchProvider} (${webSearchEnabled ? t("common.webOn") : t("common.webOff")})`;
 
     return (
         <p className="rounded-[50px] border border-[#EDEEEF] px-2.5 py-0.5 text-[10px] font-medium text-[#7A5AF8] min-[1800px]:px-3 min-[1800px]:py-1 min-[1800px]:text-[11px] min-[2200px]:px-4 min-[2200px]:text-xs">

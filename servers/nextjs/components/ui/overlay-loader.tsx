@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ProgressBar } from "./progress-bar";
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 interface OverlayLoaderProps {
   text?: string;
@@ -21,6 +22,7 @@ export const OverlayLoader = ({
   onProgressComplete,
   extra_info,
 }: OverlayLoaderProps) => {
+  const t = useT();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export const OverlayLoader = ({
         <div
           className="overlay-loader-dots shrink-0"
           role="status"
-          aria-label="Loading"
+          aria-label={t("ui.loading")}
         />
         {showProgress ? (
           <div className="w-full space-y-6 pt-4">

@@ -7,8 +7,10 @@ import {
   trackEventImmediately,
 } from "@/utils/mixpanel";
 import { Loader2 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const PrivacySettings = () => {
+  const t = useT();
   const [trackingEnabled, setTrackingEnabled] = useState<boolean | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -68,10 +70,10 @@ const PrivacySettings = () => {
     <div className="w-full space-y-6">
       <div className="bg-[#F9F8F8] p-7 rounded-[20px]">
         <h4 className="text-sm font-semibold text-[#191919] mb-1">
-          Usage analytics
+          {t("settings.privacy.title")}
         </h4>
         <p className="text-xs text-[#6B7280] mb-6 leading-relaxed max-w-lg">
-          Share anonymous usage data to help us improve Presenton. No personal information or presentation content is collected.
+          {t("settings.privacy.description")}
         </p>
 
         <div className="flex items-center justify-between gap-4 rounded-[10px] bg-white border border-[#EDEEEF] p-4">
@@ -80,12 +82,12 @@ const PrivacySettings = () => {
               htmlFor="tracking-toggle"
               className="text-sm font-medium text-[#191919] cursor-pointer select-none block"
             >
-              Share anonymous usage data
+              {t("settings.privacy.shareLabel")}
             </label>
             <p className="text-xs text-[#9CA3AF] mt-0.5">
               {trackingEnabled
-                ? "Anonymous usage data is being shared."
-                : "Anonymous usage data is not being shared"}
+                ? t("settings.privacy.sharingOn")
+                : t("settings.privacy.sharingOff")}
             </p>
           </div>
           <div className="flex items-center gap-2">

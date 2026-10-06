@@ -47,28 +47,29 @@ import {
 } from "@/components/slide-editor/types";
 import { ChartColorPaletteCard } from "@/components/slide-editor/charts/ChartColorPalette";
 import { TemplateV2ChartJsElement } from "@/components/slide-editor/charts/TemplateV2ChartJsElement";
+import { useT } from "@/lib/i18n";
 
 const CHART_TYPES: Array<{ label: string; value: ChartType }> = [
-  { label: "Bar Chart", value: "bar" },
-  { label: "Horizontal Bar", value: "horizontal_bar" },
-  { label: "Stacked Bar", value: "stacked_bar" },
-  { label: "Horizontal Stack Bar", value: "horizontal_stacked_bar" },
-  { label: "Line Chart", value: "line" },
-  { label: "Area Chart", value: "area" },
-  { label: "Pie Chart", value: "pie" },
-  { label: "Donut Chart", value: "donut" },
-  { label: "Scatter Chart", value: "scatter" },
-  { label: "Radar Chart", value: "radar" },
-  { label: "Polar Area", value: "polar_area" },
+  { label: "editorTools.chart.typeBar", value: "bar" },
+  { label: "editorTools.chart.typeHorizontalBar", value: "horizontal_bar" },
+  { label: "editorTools.chart.typeStackedBar", value: "stacked_bar" },
+  { label: "editorTools.chart.typeHorizontalStackBar", value: "horizontal_stacked_bar" },
+  { label: "editorTools.chart.typeLine", value: "line" },
+  { label: "editorTools.chart.typeArea", value: "area" },
+  { label: "editorTools.chart.typePie", value: "pie" },
+  { label: "editorTools.chart.typeDonut", value: "donut" },
+  { label: "editorTools.chart.typeScatter", value: "scatter" },
+  { label: "editorTools.chart.typeRadar", value: "radar" },
+  { label: "editorTools.chart.typePolarArea", value: "polar_area" },
 ];
 const DATA_LABEL_TABS: Array<{
   label: string;
   value: DataLabelPosition;
 }> = [
-  { label: "Base", value: "base" },
-  { label: "Middle", value: "mid" },
-  { label: "Top", value: "top" },
-  { label: "Outside", value: "outside" },
+  { label: "editorTools.chart.dataLabelBase", value: "base" },
+  { label: "editorTools.chart.dataLabelMiddle", value: "mid" },
+  { label: "editorTools.chart.dataLabelTop", value: "top" },
+  { label: "editorTools.chart.dataLabelOutside", value: "outside" },
 ];
 const DATA_MODAL_CHART_PREVIEW_WIDTH = 215;
 const DATA_MODAL_CHART_PREVIEW_HEIGHT = 180;
@@ -85,6 +86,7 @@ export function ChartEditorContent({
   onChange: (chart: ChartElement) => void;
   onClose?: () => void;
 }) {
+  const t = useT();
   const [tab, setTab] = useState<"data" | "customize">("data");
   const [dataModalOpen, setDataModalOpen] = useState(false);
 
@@ -97,12 +99,12 @@ export function ChartEditorContent({
       >
         <div className="mb-6 flex items-center justify-between gap-4">
           <h3 className="text-[15px] font-semibold leading-5 text-[#101323]">
-            Edit Charts
+            {t("editorTools.chart.editCharts")}
           </h3>
           {onClose ? (
             <button
               type="button"
-              aria-label="Close chart editor"
+              aria-label={t("editorTools.chart.closeEditor")}
               className="grid h-8 w-8 place-items-center rounded-full text-[#191919] transition hover:bg-[#F5F5F7]"
               onClick={onClose}
             >
@@ -112,7 +114,7 @@ export function ChartEditorContent({
         </div>
 
         <label className="mb-2 block text-[12px] font-medium text-[#686873]">
-          Chart type
+          {t("editorTools.chart.chartType")}
         </label>
         <ChartTypeSelect
           value={chart.chart_type}
@@ -131,7 +133,7 @@ export function ChartEditorContent({
                 }`}
               onClick={() => setTab("data")}
             >
-              Data
+              {t("editorTools.chart.data")}
             </button>
             <button
               type="button"
@@ -141,7 +143,7 @@ export function ChartEditorContent({
                 }`}
               onClick={() => setTab("customize")}
             >
-              Customize
+              {t("editorTools.chart.customize")}
             </button>
           </div>
 
@@ -177,18 +179,19 @@ function ChartTypeSelect({
   value: ChartType;
   onChange: (value: ChartType) => void;
 }) {
+  const t = useT();
   return (
     <div className="relative">
       <BarChart3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#191919]" />
       <select
-        aria-label="Chart type"
+        aria-label={t("editorTools.chart.chartType")}
         className={`${compact ? "h-9 rounded-lg pl-10 pr-9 text-[12px]" : "h-12 rounded-xl pl-11 pr-10 text-[13px]"} w-full appearance-none border border-[#E6E6EA] bg-white font-medium text-[#191919] outline-none transition focus:border-[#7C51F8]`}
         value={value}
         onChange={(event) => onChange(event.target.value as ChartType)}
       >
         {CHART_TYPES.map((item) => (
           <option key={item.value} value={item.value}>
-            {item.label}
+            {t(item.label)}
           </option>
         ))}
       </select>
@@ -204,6 +207,7 @@ function DataLabelsControl({
   value: DataLabelPosition | null;
   onChange: (value: DataLabelPosition | null) => void;
 }) {
+  const t = useT();
   const enabled = value != null;
   const [lastPosition, setLastPosition] = useState<DataLabelPosition>(
     value ?? "top",
@@ -228,16 +232,16 @@ function DataLabelsControl({
   return (
     <div className="space-y-2">
       <div className="flex min-h-6 items-center justify-between gap-3 text-[12px] font-medium text-[#191919]">
-        <span>Data labels</span>
+        <span>{t("editorTools.chart.dataLabels")}</span>
         <CompactSwitch
           checked={enabled}
-          label="Data labels"
+          label={t("editorTools.chart.dataLabels")}
           onChange={setEnabled}
         />
       </div>
       <div
         role="tablist"
-        aria-label="Data label position"
+        aria-label={t("editorTools.chart.dataLabelPosition")}
         className={`grid grid-cols-4 rounded-lg bg-[#F3F4F7] p-1 transition ${enabled ? "" : "opacity-55"}`}
       >
         {DATA_LABEL_TABS.map((item) => {
@@ -256,7 +260,7 @@ function DataLabelsControl({
                 } disabled:cursor-not-allowed disabled:hover:text-[#686873]`}
               onClick={() => selectPosition(item.value)}
             >
-              {item.label}
+              {t(item.label)}
             </button>
           );
         })}
@@ -272,6 +276,7 @@ function ChartDataPanel({
   chart: ChartElement;
   onOpenDataModal: () => void;
 }) {
+  const t = useT();
   const categories = safeCategoriesForChart(chart);
   const series = normalizedSeries(chart, categories.length);
 
@@ -284,7 +289,7 @@ function ChartDataPanel({
         onClick={onOpenDataModal}
       >
         <Pencil size={15} strokeWidth={2} />
-        Edit data
+        {t("editorTools.chart.editData")}
       </button>
     </div>
   );
@@ -365,6 +370,7 @@ function ChartCustomizePanel({
   const hasRadialAxes = chart.chart_type === "radar";
   const hasAxes = hasCartesianAxes || hasRadialAxes;
   const showLegend = chart.legend ?? defaultChartLegendVisible(chart);
+  const t = useT();
 
   return (
     <div className="space-y-1 py-2">
@@ -372,16 +378,16 @@ function ChartCustomizePanel({
         compact={compact}
         defaultOpen={defaultTextOpen}
         icon={<Type size={17} />}
-        label="Text"
+        label={t("editorTools.chart.text")}
       >
         <TextField
-          label="Title"
-          placeholder="Chart title"
+          label={t("editorTools.chart.title")}
+          placeholder={t("editorTools.chart.chartTitlePlaceholder")}
           value={chart.title ?? ""}
           onChange={(title) => onChange({ ...chart, title: title || null })}
         />
         <ColorRow
-          label="Title color"
+          label={t("editorTools.chart.titleColor")}
           value={chart.title_color ?? "344054"}
           onChange={(titleColor) =>
             onChange({ ...chart, title_color: titleColor })
@@ -400,16 +406,16 @@ function ChartCustomizePanel({
           <AccordionSection
             compact={compact}
             icon={<BarChart3 size={17} />}
-            label="X Axis"
+            label={t("editorTools.chart.xAxis")}
           >
             <ToggleRow
               checked={chart.x_axis ?? true}
-              label="Show axis"
+              label={t("editorTools.chart.showAxis")}
               onChange={(xAxis) => onChange({ ...chart, x_axis: xAxis })}
             />
             <TextField
-              label="Title"
-              placeholder="X-axis title"
+              label={t("editorTools.chart.title")}
+              placeholder={t("editorTools.chart.xAxisTitlePlaceholder")}
               value={chart.x_axis_title ?? ""}
               onChange={(xAxisTitle) =>
                 onChange({ ...chart, x_axis_title: xAxisTitle || null })
@@ -417,7 +423,7 @@ function ChartCustomizePanel({
             />
             <ToggleRow
               checked={chart.x_axis_grid ?? true}
-              label="Show grid"
+              label={t("editorTools.chart.showGrid")}
               onChange={(xAxisGrid) =>
                 onChange({ ...chart, x_axis_grid: xAxisGrid })
               }
@@ -426,16 +432,16 @@ function ChartCustomizePanel({
           <AccordionSection
             compact={compact}
             icon={<BarChart3 size={17} />}
-            label="Y Axis"
+            label={t("editorTools.chart.yAxis")}
           >
             <ToggleRow
               checked={chart.y_axis ?? true}
-              label="Show axis"
+              label={t("editorTools.chart.showAxis")}
               onChange={(yAxis) => onChange({ ...chart, y_axis: yAxis })}
             />
             <TextField
-              label="Title"
-              placeholder="Y-axis title"
+              label={t("editorTools.chart.title")}
+              placeholder={t("editorTools.chart.yAxisTitlePlaceholder")}
               value={chart.y_axis_title ?? ""}
               onChange={(yAxisTitle) =>
                 onChange({ ...chart, y_axis_title: yAxisTitle || null })
@@ -443,7 +449,7 @@ function ChartCustomizePanel({
             />
             <ToggleRow
               checked={chart.y_axis_grid ?? true}
-              label="Show grid"
+              label={t("editorTools.chart.showGrid")}
               onChange={(yAxisGrid) =>
                 onChange({ ...chart, y_axis_grid: yAxisGrid })
               }
@@ -457,16 +463,16 @@ function ChartCustomizePanel({
           <AccordionSection
             compact={compact}
             icon={<BarChart3 size={17} />}
-            label="X Axis"
+            label={t("editorTools.chart.xAxis")}
           >
             <ToggleRow
               checked={chart.x_axis ?? true}
-              label="Category labels"
+              label={t("editorTools.chart.categoryLabels")}
               onChange={(xAxis) => onChange({ ...chart, x_axis: xAxis })}
             />
             <ToggleRow
               checked={chart.x_axis_grid ?? true}
-              label="Spokes"
+              label={t("editorTools.chart.spokes")}
               onChange={(xAxisGrid) =>
                 onChange({ ...chart, x_axis_grid: xAxisGrid })
               }
@@ -475,16 +481,16 @@ function ChartCustomizePanel({
           <AccordionSection
             compact={compact}
             icon={<BarChart3 size={17} />}
-            label="Y Axis"
+            label={t("editorTools.chart.yAxis")}
           >
             <ToggleRow
               checked={chart.y_axis ?? true}
-              label="Value labels"
+              label={t("editorTools.chart.valueLabels")}
               onChange={(yAxis) => onChange({ ...chart, y_axis: yAxis })}
             />
             <ToggleRow
               checked={chart.y_axis_grid ?? true}
-              label="Rings"
+              label={t("editorTools.chart.rings")}
               onChange={(yAxisGrid) =>
                 onChange({ ...chart, y_axis_grid: yAxisGrid })
               }
@@ -496,16 +502,16 @@ function ChartCustomizePanel({
       <AccordionSection
         compact={compact}
         icon={<Settings size={17} />}
-        label="Settings"
+        label={t("editorTools.chart.settings")}
       >
         <ToggleRow
           checked={showLegend}
-          label="Show legend"
+          label={t("editorTools.chart.showLegend")}
           onChange={(legend) => onChange({ ...chart, legend })}
         />
         {showLegend ? (
           <ColorRow
-            label="Legend color"
+            label={t("editorTools.chart.legendColor")}
             value={chart.legend_color ?? "475467"}
             onChange={(legendColor) =>
               onChange({ ...chart, legend_color: legendColor })
@@ -516,14 +522,14 @@ function ChartCustomizePanel({
         {hasAxes ? (
           <>
             <ColorRow
-              label="Axis color"
+              label={t("editorTools.chart.axisColor")}
               value={chart.axis_color ?? "9AA7BD"}
               onChange={(axisColor) =>
                 onChange({ ...chart, axis_color: axisColor })
               }
             />
             <ColorRow
-              label="Grid color"
+              label={t("editorTools.chart.gridColor")}
               value={chart.grid_color ?? chart.axis_color ?? "D0D5DD"}
               onChange={(gridColor) =>
                 onChange({ ...chart, grid_color: gridColor })
@@ -557,6 +563,7 @@ function ChartSeriesColorControls({
     index: number;
     rect: DOMRect;
   } | null>(null);
+  const t = useT();
   const swatchRefs = useRef(new Map<number, HTMLButtonElement>());
   const targets = resolvedChartColorTargets(chart);
   const openTarget = paletteAnchor
@@ -570,7 +577,7 @@ function ChartSeriesColorControls({
           <button
             type="button"
             key={`${target.mode}-${target.index}`}
-            aria-label={`Change chart color ${target.index + 1}`}
+            aria-label={t("editorTools.chart.changeChartColor", { index: target.index + 1 })}
             className={`grid h-8 w-8 place-items-center rounded-full border bg-white p-1 transition ${paletteAnchor?.index === target.index
               ? "border-[#7C51F8] ring-2 ring-[#E9E2FF]"
               : "border-[#E6E6EA] hover:border-[#B8A3F8]"
@@ -582,7 +589,7 @@ function ChartSeriesColorControls({
                 swatchRefs.current.delete(target.index);
               }
             }}
-            title={`Chart color ${target.index + 1}`}
+            title={t("editorTools.chart.chartColor", { index: target.index + 1 })}
             onClick={() =>
               setPaletteAnchor((current) => {
                 if (current?.index === target.index) return null;
@@ -603,9 +610,9 @@ function ChartSeriesColorControls({
         {targets.length < 12 ? (
           <button
             type="button"
-            aria-label="Add chart color"
+            aria-label={t("editorTools.chart.addChartColor")}
             className="grid h-8 w-8 place-items-center rounded-full border border-dashed border-[#B8A3F8] bg-white text-[#7C51F8] transition hover:bg-[#F7F3FF]"
-            title="Add chart color"
+            title={t("editorTools.chart.addChartColor")}
             onClick={() => onChange(appendChartColorTarget(chart))}
           >
             <Plus size={15} strokeWidth={2.2} />
@@ -871,6 +878,7 @@ function ChartDataModal({
   onChange: (chart: ChartElement) => void;
   onClose: () => void;
 }) {
+  const t = useT();
   const [draftChart, setDraftChart] = useState<ChartElement>(() => chart);
   const categories = safeCategoriesForChart(draftChart);
   const series = normalizedSeries(draftChart, categories.length);
@@ -1072,7 +1080,7 @@ function ChartDataModal({
         </div>
         <button
           type="button"
-          aria-label="Close data editor"
+          aria-label={t("editorTools.chart.closeDataEditor")}
           className="absolute -right-14 top-0 grid h-11 w-11 place-items-center rounded-full bg-white text-[#191919] shadow-sm transition hover:bg-[#F7F7FA]"
           onClick={onClose}
         >
@@ -1105,6 +1113,7 @@ function EditableDataTable({
   colors: string[];
 }) {
   const safeCategories = categories.length > 0 ? categories : ["Item 1"];
+  const t = useT();
   const safeSeries =
     series.length > 0
       ? series
@@ -1307,7 +1316,7 @@ function EditableDataTable({
           />
           <button
             type="button"
-            aria-label="Delete selected series"
+            aria-label={t("editorTools.chart.deleteSelectedSeries")}
             className="grid h-7 w-7 shrink-0 place-items-center border-l border-[#ECECF1] text-[#191919] disabled:cursor-not-allowed disabled:opacity-30"
             disabled={safeSeries.length <= 1}
             onClick={() => deleteSeries(selectedSeriesIndex)}
@@ -1317,7 +1326,7 @@ function EditableDataTable({
           <button
             type="button"
             aria-expanded={columnMenuOpen}
-            aria-label="More column actions"
+            aria-label={t("editorTools.chart.moreColumnActions")}
             className="grid h-7 w-5 shrink-0 place-items-center text-[#191919]"
             onClick={() => setColumnMenuOpen((current) => !current)}
           >
@@ -1333,7 +1342,7 @@ function EditableDataTable({
         >
           <ColumnMenuItem
             icon={<Trash2 size={16} />}
-            label="Delete Row"
+            label={t("editorTools.table.deleteRow")}
             disabled={safeCategories.length <= 1}
             onClick={() => {
               deleteRow(selectedRowIndex);
@@ -1342,13 +1351,13 @@ function EditableDataTable({
           />
           <ColumnMenuItem
             icon={<Trash2 size={16} />}
-            label="Delete Column"
+            label={t("editorTools.table.deleteColumn")}
             disabled={safeSeries.length <= 1}
             onClick={() => deleteSeries(selectedSeriesIndex)}
           />
           <ColumnMenuItem
             icon={<Plus size={16} />}
-            label="Add Row"
+            label={t("editorTools.table.addRow")}
             onClick={() => {
               addRow();
               setColumnMenuOpen(false);
@@ -1356,7 +1365,7 @@ function EditableDataTable({
           />
           <ColumnMenuItem
             icon={<Plus size={16} />}
-            label="Add Column"
+            label={t("editorTools.table.addColumn")}
             disabled={!allowMultipleSeries}
             onClick={() => {
               addSeries();
@@ -1366,13 +1375,13 @@ function EditableDataTable({
           <div className="my-2 h-px bg-[#ECECF1]" />
           <ColumnMenuItem
             icon={<ChevronRight size={16} />}
-            label="Move Column Right"
+            label={t("editorTools.table.moveColumnRight")}
             disabled={selectedSeriesIndex >= safeSeries.length - 1}
             onClick={() => moveSeries(selectedSeriesIndex, 1)}
           />
           <ColumnMenuItem
             icon={<ChevronLeft size={16} />}
-            label="Move Column Left"
+            label={t("editorTools.table.moveColumnLeft")}
             disabled={selectedSeriesIndex <= 0}
             onClick={() => moveSeries(selectedSeriesIndex, -1)}
           />
@@ -1514,7 +1523,9 @@ function EditableDataTable({
                 <div className="sticky right-0 grid place-items-center border-b border-[#E8E8EC] bg-[#F3F4F6] px-1">
                   <button
                     type="button"
-                    aria-label={`Delete ${category || `row ${rowIndex + 1}`}`}
+                    aria-label={t("editorTools.chart.deleteNamedRow", {
+                      name: category || t("editorTools.chart.rowFallback", { index: rowIndex + 1 }),
+                    })}
                     className="grid h-7 w-7 place-items-center rounded-md text-[#8E8E98] transition hover:bg-white hover:text-[#191919] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8E8E98]"
                     disabled={safeCategories.length <= 1}
                     onClick={() => deleteRow(rowIndex)}

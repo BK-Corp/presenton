@@ -43,6 +43,7 @@ import type {
   ChatStreamTrace,
 } from "../../services/api/chat";
 import ToolTip from "@/components/ToolTip";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   MAX_NUMBER_OF_SLIDES,
@@ -145,27 +146,34 @@ type ChatConversationListItem = ChatConversationSummary & {
   title?: string;
 };
 
-const describeHtmlSelection = (selection: ChatHtmlSelection) => {
+const describeHtmlSelection = (
+  selection: ChatHtmlSelection,
+  t: (path: string, vars?: Record<string, string | number>) => string,
+) => {
   const tag = selection.elementTag?.toLowerCase();
   const elementLabel =
     tag && /^h[1-6]$/.test(tag)
-      ? "Heading"
+      ? t("presentation.chat.elementHeading")
       : tag === "p"
-        ? "Paragraph"
+        ? t("presentation.chat.elementParagraph")
         : tag === "img"
-          ? "Image"
+          ? t("presentation.chat.elementImage")
           : tag
             ? tag.toUpperCase()
-            : "Element";
+            : t("presentation.chat.elementFallback");
   const selectedText = selection.selectedText?.replace(/\s+/g, " ").trim();
   return selectedText ? `${elementLabel} · ${selectedText}` : elementLabel;
 };
 
 const describeTemplateV2Target = (
   target: NonNullable<ChatProps["selectedTemplateV2Target"]>,
+  t: (path: string, vars?: Record<string, string | number>) => string,
 ) =>
   target.kind === "multi-component"
-    ? target.targetLabel || `${target.components.length} components selected`
+    ? target.targetLabel ||
+      t("presentation.chat.componentsSelected", {
+        count: target.components.length,
+      })
     : target.targetLabel ||
       target.componentLabel ||
       target.elementName ||
@@ -177,28 +185,30 @@ const buildMessageContextTags = ({
   currentSlide,
   htmlSelection,
   templateTarget,
+  t,
 }: {
   currentSlide?: number;
   htmlSelection: ChatHtmlSelection | null;
   templateTarget: ChatProps["selectedTemplateV2Target"];
+  t: (path: string, vars?: Record<string, string | number>) => string;
 }): ChatContextTag[] => {
   const tags: ChatContextTag[] = [];
   if (typeof currentSlide === "number") {
     tags.push({
       id: "slide",
-      label: `Slide ${currentSlide + 1}`,
-      title: `Slide ${currentSlide + 1}`,
+      label: t("presentation.chat.slideLabel", { n: currentSlide + 1 }),
+      title: t("presentation.chat.slideLabel", { n: currentSlide + 1 }),
     });
   }
   if (templateTarget) {
-    const label = describeTemplateV2Target(templateTarget);
+    const label = describeTemplateV2Target(templateTarget, t);
     tags.push({ id: "target", label, title: label });
   } else if (htmlSelection) {
-    const label = describeHtmlSelection(htmlSelection);
+    const label = describeHtmlSelection(htmlSelection, t);
     tags.push({
       id: "target",
       label,
-      title: `${label}. The selected element HTML is sent with the prompt.`,
+      title: t("presentation.chat.selectionSentHint", { label }),
     });
   }
   return tags;
@@ -206,17 +216,20 @@ const buildMessageContextTags = ({
 
 const ContextTags = ({
   tags,
-  ariaLabel = "Current editor selection",
+  ariaLabel,
 }: {
   tags: DisplayContextTag[];
   ariaLabel?: string;
 }) => {
+  const t = useT();
+  const resolvedAriaLabel =
+    ariaLabel ?? t("presentation.chat.currentSelection");
   if (tags.length === 0) return null;
 
   return (
     <div
       className="mb-2 flex max-w-full items-center gap-1.5 overflow-hidden"
-      aria-label={ariaLabel}
+      aria-label={resolvedAriaLabel}
     >
       {tags.map((tag) => (
         <span
@@ -236,8 +249,12 @@ const ContextTags = ({
               type="button"
               onClick={tag.onRemove}
               className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[#8069C5] transition-colors hover:bg-[#E4DFFF] hover:text-[#5235A8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8]/40"
-              aria-label={`Remove ${tag.label} from context`}
-              title={`Remove ${tag.label} from context`}
+              aria-label={t("presentation.chat.removeFromContext", {
+                label: tag.label,
+              })}
+              title={t("presentation.chat.removeFromContext", {
+                label: tag.label,
+              })}
             >
               <X className="h-3 w-3" />
             </button>
@@ -286,14 +303,17 @@ const CONVERSATION_DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-const getConversationTitle = (conversation: ChatConversationListItem) => {
+const getConversationTitle = (
+  conversation: ChatConversationListItem,
+  t: (path: string, vars?: Record<string, string | number>) => string,
+) => {
   if (conversation.title?.trim()) return conversation.title;
   const preview = stripBackendContextFromUserMessage(
     conversation.last_message_preview ?? "",
   )
     .replace(/\s+/g, " ")
     .trim();
-  if (!preview) return "Untitled conversation";
+  if (!preview) return t("presentation.chat.untitledConversation");
   return preview.length > 54 ? `${preview.slice(0, 54).trimEnd()}…` : preview;
 };
 
@@ -326,7 +346,9 @@ const ConversationControls = ({
   onSelect: (conversationId: string) => void;
   onDelete: (conversationId: string) => void;
   onNewChat: () => void;
-}) => (
+}) => {
+  const t = useT();
+  return (
   <div className="flex items-center gap-1.5">
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -334,11 +356,11 @@ const ConversationControls = ({
           type="button"
           disabled={isBusy}
           className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#E5E5E8] bg-white px-2.5 font-manrope text-xs font-medium text-[#55555F] shadow-sm transition-colors hover:border-[#D7D7DC] hover:bg-[#F7F7F8] hover:text-[#252529] disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Open saved chats"
-          title="Saved chats"
+          aria-label={t("presentation.chat.openSavedChats")}
+          title={t("presentation.chat.savedChats")}
         >
           <History className="h-3.5 w-3.5" />
-          Chats
+          {t("presentation.chat.chats")}
           <ChevronDown className="h-3 w-3" />
         </button>
       </PopoverTrigger>
@@ -351,10 +373,12 @@ const ConversationControls = ({
         <div className="flex items-center justify-between px-2 pb-2 pt-1">
           <div>
             <p className="font-manrope text-xs font-semibold text-[#252529]">
-              Conversations
+              {t("presentation.chat.conversations")}
             </p>
             <p className="mt-0.5 font-manrope text-[10px] text-[#98A2B3]">
-              {conversations.length} saved
+              {t("presentation.chat.savedCount", {
+                count: conversations.length,
+              })}
             </p>
           </div>
           <button
@@ -364,15 +388,15 @@ const ConversationControls = ({
             className="inline-flex h-7 items-center gap-1 rounded-full bg-[#F4F3FF] px-2.5 font-manrope text-[11px] font-semibold text-[#6941C6] transition-colors hover:bg-[#EBE9FE] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus className="h-3 w-3" />
-            New
+            {t("presentation.chat.new")}
           </button>
         </div>
         <div className="max-h-[320px] space-y-1 overflow-y-auto overscroll-contain pr-0.5 [scrollbar-color:#D7D9DF_transparent] [scrollbar-width:thin]">
           {conversations.length === 0 ? (
             <div className="rounded-[8px] bg-[#FAFAFA] px-3 py-5 text-center font-manrope text-[11px] leading-4 text-[#98A2B3]">
-              No saved conversations yet.
+              {t("presentation.chat.noSaved")}
               <br />
-              Start a new chat to create one.
+              {t("presentation.chat.noSavedHint")}
             </div>
           ) : (
             conversations.map((conversation) => {
@@ -405,7 +429,7 @@ const ConversationControls = ({
                         isActive ? "text-[#6941C6]" : "text-[#344054]",
                       )}
                     >
-                      {getConversationTitle(conversation)}
+                      {getConversationTitle(conversation, t)}
                     </span>
                     <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[9px] leading-3 text-[#98A2B3]">
                       <span className="truncate">
@@ -426,8 +450,11 @@ const ConversationControls = ({
                         disabled={isBusy || isDeleting}
                         onClick={(event) => event.stopPropagation()}
                         className="mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#98A2B3] opacity-70 transition-colors hover:bg-white hover:text-[#344054] group-hover:opacity-100 data-[state=open]:bg-white data-[state=open]:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
-                        aria-label={`Conversation options for ${getConversationTitle(conversation)}`}
-                        title="Conversation options"
+                        aria-label={t(
+                          "presentation.chat.conversationOptionsFor",
+                          { title: getConversationTitle(conversation, t) },
+                        )}
+                        title={t("presentation.chat.conversationOptions")}
                       >
                         {isDeleting ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -447,7 +474,7 @@ const ConversationControls = ({
                         className="cursor-pointer rounded-[6px] px-2 py-2 font-manrope text-xs font-medium text-[#D92D20] focus:bg-[#FEF3F2] focus:text-[#B42318]"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        Delete
+                        {t("presentation.chat.delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -466,14 +493,15 @@ const ConversationControls = ({
         "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-[#E5E5E8] bg-white font-manrope text-xs font-medium text-[#55555F] shadow-sm transition-colors hover:border-[#D7D7DC] hover:bg-[#F7F7F8] hover:text-[#252529] disabled:cursor-not-allowed disabled:opacity-50",
         showNewChatLabel ? "px-3" : "w-8",
       )}
-      aria-label="Start a new chat"
-      title="Start a new chat"
+      aria-label={t("presentation.chat.startNewChat")}
+      title={t("presentation.chat.startNewChat")}
     >
       <Plus className="h-3.5 w-3.5" />
-      {showNewChatLabel ? "New chat" : null}
+      {showNewChatLabel ? t("presentation.chat.newChat") : null}
     </button>
   </div>
-);
+  );
+};
 
 const Chat = ({
   presentationId,
@@ -576,6 +604,7 @@ const Chat = ({
     changeCount: number;
   } | null>(null);
   const activeResourceId = resourceId ?? presentationId;
+  const t = useT();
 
   const baseAnalyticsProps = useCallback(
     () => ({
@@ -767,8 +796,8 @@ const Chat = ({
         const detail =
           error instanceof Error
             ? error.message
-            : "Could not load previous chat";
-        notify.error("Could not load chat", detail);
+            : t("presentation.chat.historyLoadFailed");
+        notify.error(t("presentation.chat.loadFailed"), detail);
       } finally {
         if (!cancelled) {
           setIsHistoryLoading(false);
@@ -1163,10 +1192,10 @@ const Chat = ({
       const rows = Array.isArray(data?.messages) ? data.messages : [];
       if (rows.length > 0 && !historyMatchesVariant(rows, variant)) {
         notify.error(
-          "Could not open chat",
+          t("presentation.chat.openChatFailed"),
           variant === "outline"
-            ? "This conversation belongs to the presentation editor."
-            : "This conversation belongs to the outline editor.",
+            ? t("presentation.chat.belongsToPresentation")
+            : t("presentation.chat.belongsToOutline"),
         );
         return;
       }
@@ -1196,8 +1225,10 @@ const Chat = ({
       setIsConversationListOpen(false);
     } catch (error) {
       notify.error(
-        "Could not open chat",
-        error instanceof Error ? error.message : "Please try again.",
+        t("presentation.chat.openChatFailed"),
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.tryAgain"),
       );
     } finally {
       setIsHistoryLoading(false);
@@ -1223,11 +1254,13 @@ const Chat = ({
       if (conversationIdToDelete === conversationId) {
         startNewConversation();
       }
-      notify.success("Conversation deleted");
+      notify.success(t("presentation.chat.conversationDeleted"));
     } catch (error) {
       notify.error(
-        "Could not delete chat",
-        error instanceof Error ? error.message : "Please try again.",
+        t("presentation.chat.deleteFailed"),
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.tryAgain"),
       );
     } finally {
       setDeletingConversationId(null);
@@ -1282,13 +1315,19 @@ const Chat = ({
   ) => {
     if (applyingEditPreviewMessageId) return;
     if (!presentationData || typeof presentationData !== "object") {
-      notify.error("Preview unavailable", "The presentation is not ready yet.");
+      notify.error(
+        t("presentation.chat.previewUnavailable"),
+        t("presentation.chat.previewNotReady"),
+      );
       return;
     }
 
     const currentPresentation = presentationData as Record<string, unknown>;
     if (!Array.isArray(currentPresentation.slides)) {
-      notify.error("Preview unavailable", "No slide data is available.");
+      notify.error(
+        t("presentation.chat.previewUnavailable"),
+        t("presentation.chat.previewNoSlides"),
+      );
       return;
     }
 
@@ -1330,9 +1369,14 @@ const Chat = ({
       }
       await onPresentationChanged?.();
       notify.success(
-        version === "original" ? "Original restored" : "Changes restored",
-        `${preview.slideIndices.length} ${preview.slideIndices.length === 1 ? "slide" : "slides"
-        } updated.`,
+        version === "original"
+          ? t("presentation.chat.originalRestored")
+          : t("presentation.chat.changesRestored"),
+        preview.slideIndices.length === 1
+          ? t("presentation.chat.slideUpdatedOne")
+          : t("presentation.chat.slidesUpdatedMany", {
+              count: preview.slideIndices.length,
+            }),
       );
     } catch (error) {
       dispatch(setPresentationData(presentationData as PresentationData));
@@ -1341,8 +1385,10 @@ const Chat = ({
         [messageId]: previousVersion,
       }));
       notify.error(
-        "Could not restore slides",
-        error instanceof Error ? error.message : "Please try again.",
+        t("presentation.chat.restoreFailed"),
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.tryAgain"),
       );
     } finally {
       onChatMutationStateChange?.(false);
@@ -1367,7 +1413,10 @@ const Chat = ({
         "Failed to refresh presentation after tool mutation:",
         error
       );
-      notify.error("Refresh failed", "Changes were saved, but refresh failed.");
+      notify.error(
+        t("presentation.chat.refreshFailed"),
+        t("presentation.chat.refreshFailedSaved"),
+      );
     } finally {
       refreshInFlightRef.current = false;
       if (refreshQueuedRef.current) {
@@ -1387,7 +1436,10 @@ const Chat = ({
       await onPresentationChanged();
     } catch (error) {
       console.error("Failed to refresh presentation after chat update:", error);
-      notify.error("Refresh failed", "Chat completed, but refresh failed.");
+      notify.error(
+        t("presentation.chat.refreshFailed"),
+        t("presentation.chat.refreshFailedChat"),
+      );
     }
   };
 
@@ -1485,7 +1537,7 @@ const Chat = ({
       return;
     }
     if (variant !== "template-v2") {
-      notify.info("Attachments are available in Template V2 chat.");
+      notify.info(t("presentation.chat.attachmentsV2Only"));
       return;
     }
 
@@ -1540,8 +1592,10 @@ const Chat = ({
       }
 
       notify.success(
-        "Attachment ready",
-        `${files.length} file${files.length === 1 ? "" : "s"} attached.`
+        t("presentation.chat.attachmentReady"),
+        files.length === 1
+          ? t("presentation.chat.fileAttachedOne")
+          : t("presentation.chat.filesAttachedMany", { count: files.length }),
       );
       trackEvent(MixpanelEvent.AI_Assistant_Attachment_Added, {
         ...baseAnalyticsProps(),
@@ -1558,8 +1612,10 @@ const Chat = ({
         error_message: sanitizeAnalyticsError(error, "Attachment upload failed"),
       });
       notify.error(
-        "Could not attach file",
-        error instanceof Error ? error.message : "Upload failed."
+        t("presentation.chat.attachFailed"),
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.uploadFailed"),
       );
     } finally {
       setIsUploadingPastedImage(false);
@@ -1627,8 +1683,12 @@ const Chat = ({
 
     if (!activeResourceId) {
       notify.error(
-        `${resourceLabel.charAt(0).toUpperCase()}${resourceLabel.slice(1)} not ready`,
-        `The ${resourceLabel} is not ready yet.`
+        t("presentation.chat.resourceNotReady", {
+          resource: `${resourceLabel.charAt(0).toUpperCase()}${resourceLabel.slice(1)}`,
+        }),
+        t("presentation.chat.resourceNotReadyMsg", {
+          resource: resourceLabel,
+        }),
       );
       return;
     }
@@ -1650,8 +1710,10 @@ const Chat = ({
           error_message: sanitizeAnalyticsError(error, "Image processing failed"),
         });
         notify.error(
-          "Could not read image",
-          error instanceof Error ? error.message : "Image processing failed."
+          t("presentation.chat.readImageFailed"),
+          error instanceof Error
+            ? error.message
+            : t("presentation.chat.imageProcessFailed"),
         );
         return;
       }
@@ -1668,6 +1730,7 @@ const Chat = ({
         currentSlide,
         htmlSelection: selectionContext,
         templateTarget: selectedTemplateV2Target,
+        t,
       }),
     };
 
@@ -1931,7 +1994,9 @@ const Chat = ({
       }
 
       const message =
-        error instanceof Error ? error.message : "Failed to send chat message";
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.sendFailed");
       const metrics = promptMetricsRef.current;
       trackEvent(MixpanelEvent.AI_Assistant_Prompt_Failed, {
         ...baseAnalyticsProps(),
@@ -1966,7 +2031,7 @@ const Chat = ({
           content: message,
         },
       ]);
-      notify.error("Chat error", message);
+      notify.error(t("presentation.chat.chatError"), message);
     } finally {
       setHasChatMutationStarted(false);
       if (abortControllerRef.current === streamAbortController) {
@@ -2133,8 +2198,12 @@ const Chat = ({
         total_count: nextImages.length,
       });
       notify.success(
-        "Image pasted",
-        `${nextImages.length} image${nextImages.length === 1 ? "" : "s"} ready to use.`
+        t("presentation.chat.imagePasted"),
+        nextImages.length === 1
+          ? t("presentation.chat.imageReadyOne")
+          : t("presentation.chat.imagesReadyMany", {
+              count: nextImages.length,
+            }),
       );
     } catch (error) {
       trackEvent(MixpanelEvent.AI_Assistant_Attachment_Failed, {
@@ -2144,8 +2213,10 @@ const Chat = ({
         error_message: sanitizeAnalyticsError(error, "Image upload failed"),
       });
       notify.error(
-        "Could not paste image",
-        error instanceof Error ? error.message : "Image upload failed."
+        t("presentation.chat.pasteImageFailed"),
+        error instanceof Error
+          ? error.message
+          : t("presentation.chat.pasteImageFailedMsg"),
       );
     } finally {
       setIsUploadingPastedImage(false);
@@ -2196,7 +2267,10 @@ const Chat = ({
     event.stopPropagation();
     setIsDraggingAttachment(false);
     if (files.length === 0) {
-      notify.warning("Drop unavailable", "Use the attach button for this file.");
+      notify.warning(
+        t("presentation.chat.dropUnavailable"),
+        t("presentation.chat.dropUnavailableMsg"),
+      );
       return;
     }
     void processTemplateV2Files(files, "drop");
@@ -2210,12 +2284,12 @@ const Chat = ({
   const chatSlideReference =
     typeof currentSlide === "number" &&
       hiddenOverlaySlideReference !== currentSlide
-      ? `Slide ${currentSlide + 1}`
+      ? t("presentation.chat.slideLabel", { n: currentSlide + 1 })
       : "";
   const chatTargetReference = selectedTemplateV2Target
-    ? describeTemplateV2Target(selectedTemplateV2Target)
+    ? describeTemplateV2Target(selectedTemplateV2Target, t)
     : chatHtmlSelection
-      ? describeHtmlSelection(chatHtmlSelection)
+      ? describeHtmlSelection(chatHtmlSelection, t)
       : "";
   const clearChatTargetReference = chatHtmlSelection
     ? () => dispatch(clearChatHtmlSelection())
@@ -2237,7 +2311,9 @@ const Chat = ({
             id: "target",
             label: chatTargetReference,
             title: chatHtmlSelection
-              ? `${chatTargetReference}. The selected element HTML is sent with the prompt.`
+              ? t("presentation.chat.selectionSentHint", {
+                  label: chatTargetReference,
+                })
               : chatTargetReference,
             onRemove: clearChatTargetReference,
           },
@@ -2283,7 +2359,7 @@ const Chat = ({
           {isHistoryLoading && messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-xs text-[#999999]">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-              Loading chat…
+              {t("presentation.chat.loadingChat")}
             </div>
           ) : messages.length > 0 ? (
             <div className="flex flex-col gap-0">
@@ -2306,7 +2382,7 @@ const Chat = ({
                         {message.contextTags?.length ? (
                           <ContextTags
                             tags={message.contextTags}
-                            ariaLabel="Context sent with prompt"
+                            ariaLabel={t("presentation.chat.contextSent")}
                           />
                         ) : null}
                         <div className="flex min-h-[30px] w-fit max-w-full items-center gap-2.5 rounded-[8px] bg-[#F3F4F7] px-3 py-1.5 font-manrope text-[13px] font-medium leading-[normal] text-[#333333] [overflow-wrap:anywhere] [word-break:break-word]">
@@ -2407,11 +2483,13 @@ const Chat = ({
                               <span className="flex h-[14px] w-[14px] items-start justify-center pt-0.5">
                                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#E6E6E6]" />
                               </span>
-                              <span>Understanding</span>
+                              <span>
+                                {t("presentation.chat.understanding")}
+                              </span>
                               <ActivityStatusIcon
                                 activity={{
                                   id: "fallback",
-                                  label: "Understanding",
+                                  label: t("presentation.chat.understanding"),
                                   state: "running",
                                 }}
                               />
@@ -2449,8 +2527,8 @@ const Chat = ({
                                 className="flex h-[14px] w-[14px] shrink-0 items-center justify-center text-[#808080] transition-colors hover:text-[#333333]"
                                 aria-label={
                                   isEditPreviewExpanded
-                                    ? "Hide edit comparison"
-                                    : "Show edit comparison"
+                                    ? t("presentation.chat.hideEdits")
+                                    : t("presentation.chat.showEdits")
                                 }
                                 aria-expanded={isEditPreviewExpanded}
                               >
@@ -2497,11 +2575,13 @@ const Chat = ({
           ) : (
             <div className="flex h-full items-center justify-center px-6 pb-4">
               <h3 className="-translate-y-2 text-center text-[22px] font-normal leading-[1.12] tracking-[-0.66px] text-[#4A4A4A]">
-                {isOutlineVariant ? "How can I improve" : "What can I do"}
+                {isOutlineVariant
+                  ? t("presentation.chat.emptyOutline1")
+                  : t("presentation.chat.emptyDeck1")}
                 <br />
                 {isOutlineVariant
-                  ? "your outline today?"
-                  : "for your deck today?"}
+                  ? t("presentation.chat.emptyOutline2")
+                  : t("presentation.chat.emptyDeck2")}
               </h3>
             </div>
           )}
@@ -2554,7 +2634,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== link.id),
                           )
                         }
-                        aria-label="Remove link"
+                        aria-label={t("presentation.chat.removeLink")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2574,7 +2654,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== image.id),
                           )
                         }
-                        aria-label="Remove pasted image"
+                        aria-label={t("presentation.chat.removeImage")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2594,7 +2674,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== document.id),
                           )
                         }
-                        aria-label="Remove attached document"
+                        aria-label={t("presentation.chat.removeDocument")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2602,7 +2682,8 @@ const Chat = ({
                   ))}
                   {isUploadingPastedImage && (
                     <span className="inline-flex items-center gap-1 text-[10px] text-[#808080]">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Processing
+                      <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                      {t("presentation.chat.processing")}
                     </span>
                   )}
                 </div>
@@ -2625,8 +2706,8 @@ const Chat = ({
               onKeyDown={handleKeyDown}
               placeholder={
                 isOutlineVariant
-                  ? "Ask about your outline.\nType / to get Quick prompts."
-                  : "Ask anything.\nType / to get Quick prompts."
+                  ? t("presentation.chat.placeholderOutline")
+                  : t("presentation.chat.placeholderDeck")
               }
               aria-invalid={Boolean(errorMessage)}
             />
@@ -2639,7 +2720,7 @@ const Chat = ({
                     onClick={() => fileInputRef.current?.click()}
                     disabled={!isTemplateV2Variant || chatInputDisabled}
                     className="inline-flex h-[14px] w-[14px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
-                    aria-label="Attach files"
+                    aria-label={t("presentation.chat.attachFiles")}
                   >
                     <Plus className="h-[14px] w-[14px] text-black" />
                   </button>
@@ -2647,8 +2728,8 @@ const Chat = ({
                   <ToolTip
                     content={
                       isFollowAgentEnabled
-                        ? "Disable follow AI mode"
-                        : "Enable follow AI mode"
+                        ? t("presentation.chat.followDisable")
+                        : t("presentation.chat.followEnable")
                     }
                   >
                     <button
@@ -2660,8 +2741,8 @@ const Chat = ({
                       className="inline-flex h-[14px] w-[14px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
                       aria-label={
                         isFollowAgentEnabled
-                          ? "Disable follow AI mode"
-                          : "Enable follow AI mode"
+                          ? t("presentation.chat.followDisable")
+                          : t("presentation.chat.followEnable")
                       }
                     >
                       <svg
@@ -2698,7 +2779,7 @@ const Chat = ({
                       type="button"
                       disabled={chatInputDisabled}
                       className="inline-flex h-[28px] items-center gap-1.5 rounded-full border border-[#EDEEEF] bg-white px-[11px] font-syne text-xs font-medium tracking-[0.16px] text-[#191919] transition-colors hover:bg-[#FAFAFF] disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label="Open quick prompts"
+                      aria-label={t("presentation.chat.openQuickPrompts")}
                     >
                       <Image
                         src="/ai-star.svg"
@@ -2707,7 +2788,7 @@ const Chat = ({
                         height={14}
                         className="h-[14px] w-[13px] shrink-0"
                       />
-                      Prompt
+                      {t("presentation.chat.prompt")}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -2733,7 +2814,7 @@ const Chat = ({
                   type="button"
                   onClick={stopStreaming}
                   className="flex h-8 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDEEEF] text-[#191919]"
-                  aria-label="Stop chat response"
+                  aria-label={t("presentation.chat.stopResponse")}
                 >
                   <Square className="h-3 w-3 fill-current" />
                 </button>
@@ -2754,7 +2835,7 @@ const Chat = ({
                       ? "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)"
                       : "#EDEEEF",
                   }}
-                  aria-label="Send prompt"
+                  aria-label={t("presentation.chat.sendPrompt")}
                 >
                   <ArrowUp className="h-4 w-4" />
                 </button>
@@ -2815,12 +2896,12 @@ const Chat = ({
                   fill="#7A5AF8"
                 />
               </svg>
-              AI Assistant
+              {t("presentation.chat.aiAssistant")}
             </h4>
             {isSending && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[#F4F3FF] px-2 py-0.5 text-[10px] font-medium text-[#6941C6]">
                 <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                Live
+                {t("presentation.chat.live")}
               </span>
             )}
           </div>
@@ -2853,20 +2934,20 @@ const Chat = ({
         {isHistoryLoading && messages.length === 0 ? (
           <div className="flex items-center justify-center py-8 text-sm text-[#99A1AF]">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Loading chat…
+            {t("presentation.chat.loadingChat")}
           </div>
         ) : showEditorEmptyState ? (
           <h3 className="-translate-y-7 text-center text-[clamp(20px,1.55vw,24px)] font-normal leading-[1.08] tracking-[-0.72px] text-[#4A4A4A]">
-            What can I do
+            {t("presentation.chat.emptyDeck1")}
             <br />
-            for your deck today?
+            {t("presentation.chat.emptyDeck2")}
           </h3>
         ) : messages.length === 0 ? (
           <>
             {isOutlineVariant ? (
               <div>
                 <h4 className="mb-2 text-[10px] font-normal leading-[15px] tracking-[0.367px] text-[#99A1AF]">
-                  QUICK PROMPTS
+                  {t("presentation.chat.quickPrompts")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {outlineQuickPrompts.map((prompt) => (
@@ -2886,7 +2967,7 @@ const Chat = ({
             ) : isTemplateV2Variant ? (
               <div>
                 <h4 className="mb-2 text-[10px] font-normal leading-[15px] tracking-[0.367px] text-[#99A1AF]">
-                  QUICK PROMPTS
+                  {t("presentation.chat.quickPrompts")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {templateV2QuickPrompts.map((prompt) => (
@@ -2907,7 +2988,7 @@ const Chat = ({
               <>
                 <div>
                   <h4 className="mb-2 text-[10px] font-normal leading-[15px] tracking-[0.367px] text-[#99A1AF]">
-                    SUGGESTIONS
+                    {t("presentation.chat.suggestionsTitle")}
                   </h4>
                   <div className="flex flex-col gap-1.5">
                     {suggestions.map((suggestion) => (
@@ -2931,7 +3012,7 @@ const Chat = ({
 
                 <div className="mt-10">
                   <h4 className="mb-2 text-[10px] font-normal leading-[15px] tracking-[0.367px] text-[#99A1AF]">
-                    QUICK PROMPTS
+                    {t("presentation.chat.quickPrompts")}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {presentationQuickPrompts.map((prompt) => (
@@ -2974,14 +3055,14 @@ const Chat = ({
                           className="rounded-[8px]"
                         />
                         <p className="px-1 pb-0.5 pt-1.5 text-[10px] font-medium text-[#667085]">
-                          Selected layout
+                          {t("presentation.chat.selectedLayout")}
                         </p>
                       </div>
                     )}
                     {message.contextTags?.length ? (
                       <ContextTags
                         tags={message.contextTags}
-                        ariaLabel="Context sent with prompt"
+                        ariaLabel={t("presentation.chat.contextSent")}
                       />
                     ) : null}
                     <div className="w-fit max-w-full rounded-[18px] bg-[#7C3AED] px-4 py-3 text-[13px] font-medium leading-5 text-white shadow-sm [overflow-wrap:anywhere] [word-break:break-word]">
@@ -3024,7 +3105,7 @@ const Chat = ({
                     <div className="text-[13px] font-normal leading-6 text-[#667085]">
                       {isSending && message.role === "assistant"
                         ? message.activity?.[message.activity.length - 1]
-                          ?.label || "Working on it..."
+                          ?.label || t("presentation.chat.workingOnIt")
                         : ""}
                     </div>
                   )}
@@ -3040,7 +3121,7 @@ const Chat = ({
                         ) : (
                           <ChevronRight className="h-3 w-3" />
                         )}
-                        <span>Thinking</span>
+                        <span>{t("presentation.chat.thinking")}</span>
                         {message.activity.some(
                           (item) => item.state === "running"
                         ) && (
@@ -3122,8 +3203,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
-                    aria-label="Remove link"
-                    title="Remove link"
+                    aria-label={t("presentation.chat.removeLink")}
+                    title={t("presentation.chat.removeLink")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3144,8 +3225,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#667085] transition-colors hover:bg-[#E4E7EC]"
-                    aria-label="Remove pasted image"
-                    title="Remove pasted image"
+                    aria-label={t("presentation.chat.removeImage")}
+                    title={t("presentation.chat.removeImage")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3166,8 +3247,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#667085] transition-colors hover:bg-[#E4E7EC]"
-                    aria-label="Remove attached document"
-                    title="Remove attached document"
+                    aria-label={t("presentation.chat.removeDocument")}
+                    title={t("presentation.chat.removeDocument")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3176,7 +3257,7 @@ const Chat = ({
               {isUploadingPastedImage && (
                 <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#EDEEEF] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#667085]">
                   <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
-                  Processing attachment
+                  {t("presentation.chat.processingAttachment")}
                 </span>
               )}
             </div>
@@ -3201,12 +3282,12 @@ const Chat = ({
           onKeyDown={handleKeyDown}
           placeholder={
             isOutlineVariant
-              ? "Regenerate this outline"
+              ? t("presentation.chat.placeholderRegenerate")
               : showEditorEmptyState
-                ? "Ask anything.\nType / to get Quick prompts."
+                ? t("presentation.chat.placeholderDeck")
                 : isTemplateV2Variant
-                  ? "Change slide 2 title"
-                  : "Improve slide design"
+                  ? t("presentation.chat.placeholderChangeTitle")
+                  : t("presentation.chat.placeholderImprove")
           }
           aria-invalid={Boolean(errorMessage)}
         />
@@ -3218,11 +3299,11 @@ const Chat = ({
                 onClick={() => fileInputRef.current?.click()}
                 disabled={!isTemplateV2Variant || chatInputDisabled}
                 className="inline-flex h-[28px] items-center rounded-[64px] disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Attach files"
+                aria-label={t("presentation.chat.attachFiles")}
                 title={
                   isTemplateV2Variant
-                    ? "Attach files"
-                    : "Attachments are available in Template V2 chat"
+                    ? t("presentation.chat.attachFiles")
+                    : t("presentation.chat.attachmentsV2Only")
                 }
               >
                 <Plus className="h-3 w-3 text-black" />
@@ -3239,8 +3320,8 @@ const Chat = ({
               <ToolTip
                 content={
                   isFollowAgentEnabled
-                    ? "Disable follow AI mode"
-                    : "Enable follow AI mode"
+                    ? t("presentation.chat.followDisable")
+                    : t("presentation.chat.followEnable")
                 }
               >
                 <button
@@ -3252,13 +3333,13 @@ const Chat = ({
                   className="inline-flex h-[28px] items-center gap-1 rounded-[64px] text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={
                     isFollowAgentEnabled
-                      ? "Disable follow AI mode"
-                      : "Enable follow AI mode"
+                      ? t("presentation.chat.followDisable")
+                      : t("presentation.chat.followEnable")
                   }
                   title={
                     isFollowAgentEnabled
-                      ? "Follow AI is on: auto-jump to active slide"
-                      : "Follow AI is off"
+                      ? t("presentation.chat.followOn")
+                      : t("presentation.chat.followOff")
                   }
                 >
                   <svg
@@ -3320,7 +3401,7 @@ const Chat = ({
               onClick={() => inputRef.current?.focus()}
               disabled={chatInputDisabled}
               className="inline-flex h-[30px] items-center gap-1.5 rounded-[64px] border border-[#EDEEEF] bg-white px-3 text-[12px] font-medium text-[#4A4A4A] transition-colors hover:bg-[#FAFAFA] disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Focus prompt input"
+              aria-label={t("presentation.chat.focusInput")}
             >
               <svg
                 width="13"
@@ -3338,7 +3419,7 @@ const Chat = ({
                   fill="#7A5AF8"
                 />
               </svg>
-              Prompt
+              {t("presentation.chat.prompt")}
             </button>
           </div>
           <div className="ml-auto mr-2 flex items-center gap-2">
@@ -3347,14 +3428,14 @@ const Chat = ({
                 type="button"
                 onClick={stopStreaming}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-[34px] border border-[#E4E7EC] bg-white px-3 py-2 text-sm font-medium text-[#344054] transition-colors hover:bg-[#F9FAFB]"
-                aria-label="Stop chat response"
+                aria-label={t("presentation.chat.stopResponse")}
               >
                 <Loader2
                   className="h-3 w-3 animate-spin text-[#667085]"
                   aria-hidden="true"
                 />
                 <Square className="h-3 w-3 fill-current" aria-hidden="true" />
-                Stop
+                {t("presentation.chat.stop")}
               </button>
             ) : (
               <button
@@ -3372,7 +3453,7 @@ const Chat = ({
                   background:
                     "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)",
                 }}
-                aria-label="Send prompt"
+                aria-label={t("presentation.chat.sendPrompt")}
               >
                 <ArrowUp className="h-4 w-4 text-[#191919]" />
               </button>

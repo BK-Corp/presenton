@@ -18,6 +18,7 @@ import {
     PRESENTON_BLANK_SLIDE_PROMPT_EVENT,
     type BlankSlidePromptEventDetail,
 } from "../_shared/blank-slide-prompt-event";
+import { useT } from "@/lib/i18n";
 
 const TEMPLATE_V2_PREVIEW_SCALE = 0.085;
 
@@ -46,6 +47,7 @@ function TemplateV2PromptOverlay({
     showLayoutPreview: boolean;
     onDismiss?: () => void;
 }) {
+    const t = useT();
     const [prompt, setPrompt] = useState("");
     const [isPromptVisible, setIsPromptVisible] = useState(true);
 
@@ -84,7 +86,7 @@ function TemplateV2PromptOverlay({
         <div className="pointer-events-none absolute inset-0 z-20 font-syne">
             <div className="absolute inset-0 bg-white" aria-hidden="true" />
             <div className="absolute left-[76px] top-[76px] text-[44px] font-medium leading-none text-[#191919]/[0.04]">
-                New page
+                {t("editor.blankPrompt.newPage")}
             </div>
             <div
                 aria-hidden="true"
@@ -113,7 +115,7 @@ function TemplateV2PromptOverlay({
                 </div>
             ) : null}
             <form
-                aria-label="Create slide from prompt"
+                aria-label={t("editor.blankPrompt.formLabel")}
                 onSubmit={submitPrompt}
                 onPointerDown={(event) => event.stopPropagation()}
                 style={{ translate: "none" }}
@@ -126,21 +128,21 @@ function TemplateV2PromptOverlay({
                             htmlFor={`blank-slide-prompt-${slideIndex}`}
                             className="block text-[18px] font-normal leading-[22px] text-[#333333]"
                         >
-                            Write prompt
+                            {t("editor.blankPrompt.writePrompt")}
                         </label>
                         <input
                             id={`blank-slide-prompt-${slideIndex}`}
                             autoFocus
                             value={prompt}
                             onChange={(event) => setPrompt(event.target.value)}
-                            placeholder="Start with your idea... we'll handle the slides"
+                            placeholder={t("editor.blankPrompt.placeholder")}
                             className="mt-3 h-8 w-full border-0 bg-transparent p-0 text-[18px] font-normal leading-8 text-[#191919] outline-none placeholder:text-[#9B9BA1]"
                         />
                     </div>
                 </div>
                 <button
                     type="submit"
-                    aria-label="Create slide"
+                    aria-label={t("editor.blankPrompt.submitLabel")}
                     disabled={!prompt.trim()}
                     style={{
                         background:

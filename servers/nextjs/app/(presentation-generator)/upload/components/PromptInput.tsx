@@ -2,6 +2,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { PencilIcon, X } from "lucide-react";
 import type { KeyboardEvent, ReactNode } from "react";
+import { useT } from "@/lib/i18n";
 
 interface PromptReference {
   id: string;
@@ -31,6 +32,7 @@ export function PromptInput({
 }: PromptInputProps) {
   const isCommunityStart =
     variant === "smart" && references.length === 0 && !value.trim();
+  const t = useT();
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -60,7 +62,7 @@ export function PromptInput({
                   type="button"
                   onClick={() => onRemoveReference(reference.id)}
                   className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-[#666666] hover:bg-[#E4E4E7] hover:text-[#191919]"
-                  aria-label={`Remove ${reference.label}`}
+                  aria-label={t("upload.removeReference", { label: reference.label })}
                 >
                   <X className="h-2.5 w-2.5" />
                 </button>
@@ -76,7 +78,7 @@ export function PromptInput({
         </span>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1">
           <p className="text-sm font-normal leading-normal text-[#333333]">
-            {isCommunityStart ? "Create from community" : "Write prompt"}
+            {isCommunityStart ? t("upload.createFromCommunity") : t("upload.writePrompt")}
           </p>
           <Textarea
             value={value}
@@ -86,8 +88,8 @@ export function PromptInput({
             onKeyDown={handleKeyDown}
             placeholder={
               isCommunityStart
-                ? "Choose a design, then tell AI how to turn it into your deck."
-                : "Start with your idea... we'll handle the slides"
+                ? t("upload.communityPlaceholder")
+                : t("upload.promptPlaceholder")
             }
             data-testid="prompt-input"
             className={cn(

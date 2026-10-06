@@ -1,5 +1,6 @@
 import React, { forwardRef, memo, useCallback } from "react";
 import type { Slide } from "../../types/slide";
+import { useT } from "@/lib/i18n";
 import { useNearViewport } from "@/app/hooks/useNearViewport";
 import { V1ContentRender } from "../../components/V1ContentRender";
 import SmartHtmlSlide from "../../components/SmartHtmlSlide";
@@ -42,6 +43,7 @@ const SlideThumbnailCardComponent = forwardRef<
         rootMargin: "72px 0px",
         rootSelector: "[data-slide-thumbnail-scroll-container='true']",
       });
+    const t = useT();
     const setRootRef = useCallback(
       (node: HTMLDivElement | null) => {
         setViewportRoot(node);
@@ -104,7 +106,7 @@ const SlideThumbnailCardComponent = forwardRef<
                 fixedSize
                 fonts={fonts}
                 html={slide.html_content}
-                title={`Slide ${index + 1} thumbnail`}
+                title={t("presentation.thumbnail.thumbnailTitle", { n: index + 1 })}
               />
             </div>
           ) : useTemplateV2HtmlPreview ? (

@@ -2,6 +2,7 @@ import React from "react";
 import { PresentationCard } from "./PresentationCard";
 import { PresentationResponse } from "@/app/(presentation-generator)/services/api/dashboard";
 import { EmptyState } from "./EmptyState";
+import { useT } from "@/lib/i18n";
 
 interface PresentationGridProps {
   presentations: PresentationResponse[];
@@ -20,6 +21,7 @@ export const PresentationGrid = ({
   onPresentationDeleted,
   onPresentationDuplicated,
 }: PresentationGridProps) => {
+  const t = useT();
   const ShimmerCard = () => (
     <div className="flex min-h-[216px] flex-col overflow-hidden rounded-[12px] border border-[#EDEEEF] bg-[#F8FBFB] shadow-none animate-pulse">
       <div className="relative flex-1 overflow-hidden p-4">
@@ -61,7 +63,7 @@ export const PresentationGrid = ({
             onClick={() => window.location.reload()}
             className="text-primary hover:text-primary/80 underline"
           >
-            Try again
+            {t("dashboard.grid.tryAgain")}
           </button>
         </div>
       </div>

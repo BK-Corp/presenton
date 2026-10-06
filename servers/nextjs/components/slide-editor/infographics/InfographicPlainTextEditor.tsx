@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { Box } from "@/components/slide-editor/model/model";
 import type { InfographicCanvasTextStyle } from "@/components/slide-editor/infographics/infographic-canvas-target";
+import { useT } from "@/lib/i18n";
 
 export function InfographicPlainTextEditor({
   box,
@@ -17,6 +18,7 @@ export function InfographicPlainTextEditor({
   onCommit: (value: string) => void;
   textStyle?: InfographicCanvasTextStyle;
 }) {
+  const t = useT();
   const frameRef = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const cancelledRef = useRef(false);
@@ -91,7 +93,7 @@ export function InfographicPlainTextEditor({
         contentEditable
         suppressContentEditableWarning
         role="textbox"
-        aria-label="Edit infographic text"
+        aria-label={t("editorTools.infographic.editTextAria")}
         aria-multiline="true"
         data-inline-edit-ignore="true"
         onBlur={commit}

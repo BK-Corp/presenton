@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 interface PresentonSplashLoaderProps {
   message?: string;
@@ -51,9 +52,11 @@ function ensureSplashMaskReady(): Promise<void> {
 }
 
 export function PresentonSplashLoader({
-  message = "Preparing your workspace",
+  message,
   className,
 }: PresentonSplashLoaderProps) {
+  const t = useT();
+  const resolvedMessage = message ?? t("auth.gate.preparingWorkspace");
   const [isWordmarkReady, setIsWordmarkReady] = useState(false);
   const [animationDelayMs, setAnimationDelayMs] = useState(0);
 
@@ -123,7 +126,7 @@ export function PresentonSplashLoader({
   return (
     <main
       aria-busy="true"
-      aria-label={message}
+      aria-label={resolvedMessage}
       className={cn("presenton-splash-loader", className)}
       role="status"
       style={containerStyle}
