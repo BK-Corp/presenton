@@ -1,0 +1,43 @@
+# Portainer stack: Stacks > Add stack > Web editor (paste this) > set env vars in "Environment variables".
+services:
+  presenton:
+    image: registry.bkholding.vn/presenton:latest
+    platform: linux/amd64
+    container_name: presenton
+    restart: unless-stopped
+    ports:
+      - "${PRESENTON_HTTP_HOST_PORT:-5001}:80"
+      - "1455:1455" # Codex OAuth callback; remove if unused
+    volumes:
+      - presenton_app_data:/app_data
+    environment:
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+      - PRESENTON_HOST_HTTP_PORT=${PRESENTON_HTTP_HOST_PORT:-5001}
+      - PRESENTON_PUBLIC_URL=${PRESENTON_PUBLIC_URL:-}
+      - MIGRATE_DATABASE_ON_STARTUP=true
+      - CAN_CHANGE_KEYS=${CAN_CHANGE_KEYS:-false}
+      - DISABLE_ANONYMOUS_TRACKING=${DISABLE_ANONYMOUS_TRACKING:-true}
+      # LLM (pick one provider and set its vars in Portainer)
+      - LLM=${LLM:-litellm}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-}
+      - LITELLM_BASE_URL=${LITELLM_BASE_URL:-http://10.116.250.100:4000}
+      - LITELLM_API_KEY=${LITELLM_API_KEY:-}
+      - LITELLM_MODEL=${LITELLM_MODEL:-}
+      - CUSTOM_LLM_URL=${CUSTOM_LLM_URL:-}
+      - CUSTOM_LLM_API_KEY=${CUSTOM_LLM_API_KEY:-}
+      - CUSTOM_MODEL=${CUSTOM_MODEL:-}
+      # Images
+      - IMAGE_PROVIDER=${IMAGE_PROVIDER:-}
+      - PEXELS_API_KEY=${PEXELS_API_KEY:-}
+      # Auth
+      - AUTH_USERNAME=${AUTH_USERNAME:-}
+      - AUTH_PASSWORD=${AUTH_PASSWORD:-}
+      # Memory: no Ollama in prod, so point mem0 at your LLM endpoint or disable it
+      - MEM0_ENABLED=${MEM0_ENABLED:-true}
+      - MEM0_LLM_MODEL=${MEM0_LLM_MODEL:-}
+      - MEM0_LLM_API_KEY=${MEM0_LLM_API_KEY:-}
+      - MEM0_LLM_BASE_URL=${MEM0_LLM_BASE_URL:-}
+
+volumes:
+  presenton_app_data:

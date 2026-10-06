@@ -1,6 +1,6 @@
 # Multi-Arch Docker Release
 
-This document describes how to publish `presenton` as a multi-architecture image to GitHub Container Registry (`ghcr.io`).
+This document describes how to publish `presenton` as a multi-architecture image to registry.bkholding.vn.
 
 The flow is:
 
@@ -22,10 +22,10 @@ presenton-3-production:latest
 This example uses version `v0.9.3-beta`:
 
 ```text
-ghcr.io/presenton/presenton:v0.9.3-beta-arm64
-ghcr.io/presenton/presenton:v0.9.3-beta-amd64
-ghcr.io/presenton/presenton:v0.9.3-beta
-ghcr.io/presenton/presenton:latest
+registry.bkholding.vn/presenton:v0.9.3-beta-arm64
+registry.bkholding.vn/presenton:v0.9.3-beta-amd64
+registry.bkholding.vn/presenton:v0.9.3-beta
+registry.bkholding.vn/presenton:latest
 ```
 
 ## 1. Push the ARM64 Image From macOS
@@ -34,9 +34,9 @@ Run this on the Mac machine that built the ARM64 image:
 
 ```bash
 docker tag presenton-3-production:latest \
-  ghcr.io/presenton/presenton:v0.9.3-beta-arm64
+  registry.bkholding.vn/presenton:v0.9.3-beta-arm64
 
-docker push ghcr.io/presenton/presenton:v0.9.3-beta-arm64
+docker push registry.bkholding.vn/presenton:v0.9.3-beta-arm64
 ```
 
 ## 2. Push the AMD64 Image From Linux
@@ -45,9 +45,9 @@ Run this on the Linux machine that built the AMD64 image:
 
 ```bash
 docker tag presenton-3-production:latest \
-  ghcr.io/presenton/presenton:v0.9.3-beta-amd64
+  registry.bkholding.vn/presenton:v0.9.3-beta-amd64
 
-docker push ghcr.io/presenton/presenton:v0.9.3-beta-amd64
+docker push registry.bkholding.vn/presenton:v0.9.3-beta-amd64
 ```
 
 ## 3. Create the Multi-Arch Manifest
@@ -56,25 +56,25 @@ After both architecture-specific images are pushed, run this on either machine:
 
 ```bash
 docker buildx imagetools create \
-  -t ghcr.io/presenton/presenton:v0.9.3-beta \
-  ghcr.io/presenton/presenton:v0.9.3-beta-amd64 \
-  ghcr.io/presenton/presenton:v0.9.3-beta-arm64
+  -t registry.bkholding.vn/presenton:v0.9.3-beta \
+  registry.bkholding.vn/presenton:v0.9.3-beta-amd64 \
+  registry.bkholding.vn/presenton:v0.9.3-beta-arm64
 ```
 
 ## 4. Promote the Release to `latest`
 
 ```bash
 docker buildx imagetools create \
-  -t ghcr.io/presenton/presenton:latest \
-  ghcr.io/presenton/presenton:v0.9.3-beta
+  -t registry.bkholding.vn/presenton:latest \
+  registry.bkholding.vn/presenton:v0.9.3-beta
 ```
 
 ## 5. Verify the Published Manifests
 
 ```bash
-docker buildx imagetools inspect ghcr.io/presenton/presenton:v0.9.3-beta
+docker buildx imagetools inspect registry.bkholding.vn/presenton:v0.9.3-beta
 
-docker buildx imagetools inspect ghcr.io/presenton/presenton:latest
+docker buildx imagetools inspect registry.bkholding.vn/presenton:latest
 ```
 
 Both manifests should include:
